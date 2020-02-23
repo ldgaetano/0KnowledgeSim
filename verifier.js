@@ -1,11 +1,11 @@
-const radius = 20;
-const c = 10;
+const r = 20;
+const speed = 10;
 
-class Prover {
+class Verifier {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.radius = radius;
+        this.r = r;
         this.rings = [];
     }
 
@@ -14,7 +14,7 @@ class Prover {
             this.rings.push({
                 x: this.x,
                 y: this.y,
-                radius: 1,
+                r: 1,
             });
         }
 
@@ -25,7 +25,7 @@ class Prover {
         this.rings = this.rings.map(ring => ({
             x: ring.x,
             y: ring.y,
-            radius: ring.radius + c / ring.radius,
+            r: ring.r + speed / ring.r,
         }));
     }
 
@@ -33,23 +33,13 @@ class Prover {
         sketch.push();
         sketch.stroke(0);
         sketch.fill(0);
-        sketch.circle(this.x, this.y, radius); // Draw entity
+        sketch.circle(this.x, this.y, r); // Draw entity
 
         sketch.noFill();
         sketch.stroke(0);
         this.rings.forEach(ring => {
-            sketch.circle(ring.x, ring.y, ring.radius); // Draw ring
+            sketch.circle(ring.x, ring.y, ring.r); // Draw ring
         })
         sketch.pop();
-    }
-
-    static updateAll(sketch, entities, selectedIndex) {
-        entities.forEach((e, i) => {
-            e.update(sketch);
-            if (i == selectedIndex) {
-                e.x = sketch.mouseX;
-                e.y = sketch.mouseY;
-            }
-        });
     }
 }
