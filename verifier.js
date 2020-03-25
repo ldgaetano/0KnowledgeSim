@@ -1,11 +1,12 @@
 const r = 20;
-const speed = 10;
+const speed = 100;
 
 class Verifier {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.r = r;
+        this.col = 0
         this.rings = [];
     }
 
@@ -27,12 +28,13 @@ class Verifier {
             y: ring.y,
             r: ring.r + speed / ring.r,
         }));
+
     }
 
     render(sketch) {
         sketch.push();
-        sketch.stroke(0);
-        sketch.fill(0);
+        sketch.stroke(this.col);
+        sketch.fill(this.col);
         sketch.circle(this.x, this.y, r); // Draw entity
 
         sketch.noFill();
@@ -41,5 +43,8 @@ class Verifier {
             sketch.circle(ring.x, ring.y, ring.r); // Draw ring
         })
         sketch.pop();
+    }
+    changeColor(sketch){
+        this.col
     }
 }
