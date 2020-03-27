@@ -1,5 +1,5 @@
 // const diameter = 20;
-const c = 10;
+const c = 100;
 
 class Prover {
     constructor(x, y) {
