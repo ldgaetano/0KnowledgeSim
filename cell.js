@@ -6,34 +6,35 @@ class Cell {
         this.flags = {
             hover : true
         }
-        this.radius = 2;
+        this.radius = 25;
     }
 
-    render() {
-        this.render_cell();
-        this.render_text();
+    render(sketch) {
+        this.render_cell(sketch);
+        this.render_text(sketch);
     }
 
-    render_text() {
-        noStroke();
-        fill(0);
-        textSize(20);
-        text(this.id, this.x - (textWidth(this.id) / 2), this.y + ((textAscent() + textDescent()) / 4));
+    render_text(sketch) {
+        sketch.noStroke();
+        sketch.fill(0);
+        sketch.textSize(20);
+        sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
     }
 
-    render_cell() {
-        stroke(0);
-        strokeWeight(2);
+    render_cell(sketch) {
+        sketch.stroke(0);
+        sketch.strokeWeight(2);
+        sketch.fill(255);
 
         if (this.flags.hover) {
-            strokeWeight(3);
+            sketch.fill('purple');
         }
 
-        circle(this.x, this.y, this.radius*2);
+        sketch.circle(this.x, this.y, this.radius*2);
     }
 
-    isInside(x, y) {
-        const d = dist(this.x, this.y, x, y);
+    isInside(x, y, sketch) {
+        const d = sketch.dist(this.x, this.y, x, y);
         return d <= this.radius;
     }
 

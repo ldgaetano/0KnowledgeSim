@@ -1,7 +1,3 @@
-import {getCells} from "./graph";
-import {getConnections} from "./graph";
-
-
 /*
     Defining global constants
  */
@@ -136,18 +132,55 @@ let myp5Graph = new p5(sketch2 => {
     sketch2.setup = () => {
         let canv = sketch2.createCanvas(500, 500);
         canv.position(600,200);
-        cells = getCells();
-        connections = getConnections();
+
+        // Create cells
+        const cell1 = new Cell(1, 150, 350);
+        const cell2 = new Cell(2, 150, 250);
+        const cell3 = new Cell(3, 250, 250);
+        const cell4 = new Cell(4, 250, 350);
+        const cell5 = new Cell(5, 350, 250);
+        const cell6 = new Cell(6, 350, 150);
+
+        // Add cells to cells list
+        cells.push(cell1);
+        cells.push(cell2);
+        cells.push(cell3);
+        cells.push(cell4);
+        cells.push(cell5);
+        cells.push(cell6);
+
+        // Create connections between cells
+        const c1 = new Connection(cell1, cell2);
+        const c2 = new Connection(cell2, cell3);
+        const c3 = new Connection(cell3, cell4);
+        const c4 = new Connection(cell1, cell4);
+        const c5 = new Connection(cell4, cell5);
+        const c6 = new Connection(cell3, cell5);
+        const c7 = new Connection(cell5, cell6);
+
+        // Add connections to connections list
+        connections.push(c1);
+        connections.push(c2);
+        connections.push(c3);
+        connections.push(c4);
+        connections.push(c5);
+        connections.push(c6);
+        connections.push(c7);
 
     }
 
     sketch2.draw = () => {
         sketch2.background(220);
+        connections.forEach(conn => {
+            conn.render(sketch2);
+        })
 
+        cells.forEach (cell => {
+            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)) cell.flags.hover = true;
+            else cell.flags.hover = false;
 
-
-
-
+            cell.render(sketch2);
+        });
     }
 
 }, "graph-canvas");
