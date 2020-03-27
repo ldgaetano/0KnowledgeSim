@@ -1,9 +1,19 @@
+import {getCells} from "./graph";
+import {getConnections} from "./graph";
+
+
+/*
+    Defining global constants
+ */
+
 const diameter = 20;
 
+// The provers
 let p1;
 let p2;
 let p3;
 
+// The verifiers
 let v1;
 let v2;
 let v3;
@@ -12,6 +22,9 @@ let entitySelectedIndex = -1;
 let provers;
 let verifiers;
 
+// The displayed graph
+let cells = [];
+let connections = [];
 
 
 let myp5 = new p5(sketch => {
@@ -116,14 +129,25 @@ let myp5User = new p5(sketch1 => {
 
 }, "user-canvas");
 
+/*
+    Canvas that displays the graph
+ */
 let myp5Graph = new p5(sketch2 => {
     sketch2.setup = () => {
         let canv = sketch2.createCanvas(500, 500);
-        canv.position(600,200)
+        canv.position(600,200);
+        cells = getCells();
+        connections = getConnections();
+
     }
 
     sketch2.draw = () => {
         sketch2.background(220);
+
+
+
+
+
     }
 
 }, "graph-canvas");
