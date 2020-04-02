@@ -18,11 +18,6 @@ let entitySelectedIndex = -1;
 let provers;
 let verifiers;
 
-// The displayed graph
-let cells = [];
-let connections = [];
-
-
 let myp5 = new p5(sketch => {
     sketch.setup = () => {
 
@@ -133,19 +128,25 @@ let myp5Graph = new p5(sketch2 => {
         let canv = sketch2.createCanvas(500, 500);
         canv.position(600,200);
 
+        // Defining the coordinate system for displaying the graph
+        let origin_x = 86.6;
+        let origin_y = 250;
+        let x = 86.6;
+        let y = 50;
+
         // Create cells
-        const cell_1 = new Cell(1, 125, 225);
-        const cell_2 = new Cell(2, 175, 75);
-        const cell_3 = new Cell(3, 275, 75);
-        const cell_4 = new Cell(4, 325, 175);
-        const cell_5 = new Cell(5, 275, 275);
-        const cell_6 = new Cell(6, 175, 275);
-        const cell_7 = new Cell(7, 175, 225);
-        const cell_8 = new Cell(8, 175, 175);
-        const cell_9 = new Cell(9, 225, 150);
-        const cell_10 = new Cell(10, 275, 175);
-        const cell_11 = new Cell(11, 275, 225);
-        const cell_12 = new Cell(12, 225, 200);
+        const cell_1 = new Cell(1, origin_x, origin_y);
+        const cell_2 = new Cell(2, origin_x + x, origin_y - 3*y);
+        const cell_3 = new Cell(3, origin_x + 3*x, origin_y - 3*y);
+        const cell_4 = new Cell(4, origin_x + 4*x, origin_y);
+        const cell_5 = new Cell(5, origin_x + 3*x, origin_y + 3*y);
+        const cell_6 = new Cell(6, origin_x + x, origin_y + 3*y);
+        const cell_7 = new Cell(7, origin_x + x, origin_y + y);
+        const cell_8 = new Cell(8, origin_x + x, origin_y - y);
+        const cell_9 = new Cell(9, origin_x + 2*x, origin_y - 2*y);
+        const cell_10 = new Cell(10, origin_x + 3*x, origin_y - y);
+        const cell_11 = new Cell(11, origin_x + 3*x, origin_y + y);
+        const cell_12 = new Cell(12, origin_x + 2*x, origin_y + 2*y);
 
         // Add cells to cells list
         cells.push(cell_1);
@@ -173,14 +174,15 @@ let myp5Graph = new p5(sketch2 => {
         const c9 = new Connection(cell_9, cell_10);
         const c10 = new Connection(cell_3, cell_10);
         const c11 = new Connection(cell_3, cell_6);
-        const c12 = new Connection(cell_11, cell_4);
-        const c13 = new Connection(cell_4, cell_11);
-        const c14 = new Connection(cell_11, cell_12);
-        const c15 = new Connection(cell_11, cell_5);
-        const c16 = new Connection(cell_5, cell_12);
-        const c17 = new Connection(cell_12, cell_6);
-        const c18 = new Connection(cell_12, cell_7);
-        const c19 = new Connection(cell_6, cell_7);
+        const c12 = new Connection(cell_10, cell_11);
+        const c13 = new Connection(cell_10, cell_4);
+        const c14 = new Connection(cell_4, cell_11);
+        const c15 = new Connection(cell_11, cell_12);
+        const c16 = new Connection(cell_11, cell_5);
+        const c17 = new Connection(cell_5, cell_12);
+        const c18 = new Connection(cell_12, cell_6);
+        const c19 = new Connection(cell_12, cell_7);
+        const c20 = new Connection(cell_6, cell_7);
 
         // Add connections to connections list
         connections.push(c1);
@@ -202,7 +204,7 @@ let myp5Graph = new p5(sketch2 => {
         connections.push(c17);
         connections.push(c18);
         connections.push(c19);
-
+        connections.push(c20);
     }
 
     sketch2.draw = () => {

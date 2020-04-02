@@ -6,7 +6,7 @@ class Cell {
         this.flags = {
             hover : true
         }
-        this.radius = 25;
+        this.radius = 20;
     }
 
     render(sketch) {
