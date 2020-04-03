@@ -4,8 +4,9 @@ class Cell {
         this.x = x;
         this.y = y;
         this.flags = {
-            hover : true
-        }
+            hover : true,
+            clicked: false
+        };
         this.radius = 20;
     }
 
@@ -29,6 +30,9 @@ class Cell {
         if (this.flags.hover) {
             sketch.fill('purple');
         }
+        if (this.flags.clicked) {
+            sketch.fill('purple');
+        }
 
         sketch.circle(this.x, this.y, this.radius*2);
     }
@@ -37,5 +41,16 @@ class Cell {
         const d = sketch.dist(this.x, this.y, x, y);
         return d <= this.radius;
     }
+    changeCol(entity){
+        entity.forEach(cell => {
+            cell.flags.clicked = true;
+        });
+
+    }
+    // clicked(x, y, sketch){
+    //     if (isInside(x,y,sketch)) {
+    //         sketch.fill('purple');
+    //     }
+    // }
 
 }

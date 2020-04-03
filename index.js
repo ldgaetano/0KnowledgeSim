@@ -18,14 +18,19 @@ let entitySelectedIndex = -1;
 let provers;
 let verifiers;
 
+// The graph cells
+let selected = [];
+let selectID = [];
+let rand;
+
 let myp5 = new p5(sketch => {
     sketch.setup = () => {
 
         let canv = sketch.createCanvas(500, 500);
-        canv.position(10, 200)
+        canv.position(600, 200)
         resetSketch();
         var reset = sketch.createButton("reset");
-        reset.position(10,150)
+        reset.position(600,150)
         reset.mousePressed(resetSketch);
     }
 
@@ -74,7 +79,7 @@ let myp5 = new p5(sketch => {
         });
 
         checkIfTouching()
-    }
+    };
 
     sketch.mousePressed = () => {
         verifiers.forEach((e, i) => {
@@ -82,7 +87,7 @@ let myp5 = new p5(sketch => {
                 entitySelectedIndex = i;
             }
         });
-    }
+    };
 
     sketch.mouseReleased = () => {
         entitySelectedIndex = -1;
@@ -90,20 +95,36 @@ let myp5 = new p5(sketch => {
 }, "entity-canvas");
 
 let myp5User = new p5(sketch1 => {
+    let rand1;
+    let rand2;
+
     sketch1.setup = () => {
         let canvUser = sketch1.createCanvas(500, 100);
-        canvUser.position(10,20)
-        let rand1 = sketch1.createButton('1')
+        canvUser.position(10,20);
+
+        rand1 = sketch1.createButton('1');
+        rand2 = sketch1.createButton('2');
+        bgCol1 = sketch1.color(200,255,255);
+        bgCol2 = sketch1.color(200,255,255);
+
         rand1.position(20,70);
+        rand1.style('font-size', '30px');
+        rand1.style('background-color', sketch1.color(255));
+        rand1.style('color: black');
+        rand1.mouseClicked(changeColor);
 
-        let rand2 = sketch1.createButton('2')
-        rand2.position(40,70);
 
-        // let input = sketch1.createInput();
-        // input.position(20, 70);
+        rand2.position(60,70);
+        rand2.style('font-size', '30px');
+        rand2.style('background-color', sketch1.color(255));
+        rand2.style('color: black');
+        rand2.mouseClicked(changeColor);
 
         let commit = sketch1.createButton('commit');
-        commit.position(rand2.x + rand2.width, rand2.y);
+        commit.position(rand2.x + rand2.width+30, rand2.y);
+        commit.style('font-size', '30px');
+        commit.style('background-color', sketch1.color(255));
+        commit.style('color: black');
         // commit.mousePressed();
 
         let instruction = sketch1.createElement('h3', "Please choose one of the two following randomness.")
@@ -111,22 +132,64 @@ let myp5User = new p5(sketch1 => {
 
         // sketch1.textAlign(CENTER);
         sketch1.textSize(100);
-    }
+    };
+
+    let changeColor = () => {
+        if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, rand1.x, rand1.y) < 30){
+            rand1.style('background-color', sketch1.color(255,200,200));
+            rand = 1;
+            console.log(rand);
+        }
+        else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, rand2.x, rand2.y) < 30){
+            rand2.style('background-color', sketch1.color(255,200,200));
+            rand = 2;
+            console.log(rand);
+        }
+    };
 
     sketch1.draw = () => {
-        sketch1.background(220);
+        sketch1.background(255);
 
     }
 
 }, "user-canvas");
+/*
+    Canvas to ask user to pick an edge
+ */
+let myp5UserG = new p5(sketch3 => {
+    sketch3.setup = () => {
+        let canvUser = sketch3.createCanvas(500, 70);
+        canvUser.position(10,140)
 
+        // let input = sketch1.createInput();
+        // input.position(20, 70);
+
+        // let commit = sketch1.createButton('commit');
+        // commit.position(rand2.x + rand2.width, rand2.y);
+        // // commit.mousePressed();
+
+        let instruction = sketch3.createElement('h3', "Please choose two nodes that form an edge in the following graph.")
+        instruction.position(10, 140);
+
+        // sketch1.textAlign(CENTER);
+        sketch3.textSize(100);
+    }
+
+    sketch3.draw = () => {
+        sketch3.background(255);
+
+    }
+
+}, "userG-canvas");
 /*
     Canvas that displays the graph
  */
 let myp5Graph = new p5(sketch2 => {
+    let cells = [];
+    let connections = [];
     sketch2.setup = () => {
         let canv = sketch2.createCanvas(500, 500);
-        canv.position(600,200);
+        canv.position(10,200);
 
         // Defining the coordinate system for displaying the graph
         let origin_x = 86.6;
@@ -219,6 +282,23 @@ let myp5Graph = new p5(sketch2 => {
 
             cell.render(sketch2);
         });
-    }
+    };
+
+    sketch2.mouseClicked = () => {
+        cells.forEach(cell => {
+            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)){
+                // cell.flags.clicked = true;
+                selected.push(cell);
+                selectID.push(cell.id);
+                console.log(selectID);
+                cell.changeCol(selected);
+                if (selected.length >= 2){
+                    selected = [];
+                    selectID =[]
+                }
+            }
+            else cell.flags.clicked = false;
+        });
+    };
 
 }, "graph-canvas");
