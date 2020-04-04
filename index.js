@@ -279,6 +279,7 @@ let myp5User = new p5(sketch1 => {
     Function to dynamically display output
      */
     function printText(){
+
         n1 = sketch1.createElement('h4', edge0[0].toString(10));
         n2 = sketch1.createElement('h4', edge0[1].toString(10));
         n1.position(740, 5);
@@ -308,7 +309,23 @@ let myp5User = new p5(sketch1 => {
             r0 = r2;
             s0 = s2;
             consistency();
-            printText();
+            // printText();
+            n1 = sketch1.createElement('h4', edge0[0].toString(10));
+            n2 = sketch1.createElement('h4', edge0[1].toString(10));
+            n1.position(740, 5);
+            n2.position(840, 5);
+            let wiPos = sketch1.createElement('h4', wi);
+            wiPos.position(n1.x, p1.y);
+
+            let wjPos = sketch1.createElement('h4', wj);
+            wjPos.position(n2.x, p1.y);
+
+            let wippPos = sketch1.createElement('h4', wipp);
+            wippPos.position(n1.x, p2.y);
+
+            let wjppPos = sketch1.createElement('h4', wjpp);
+            wjppPos.position(n2.x, p2.y);
+            selectID = [];
 
         }
         else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, edge.x, edge.y) < 30){
@@ -316,7 +333,23 @@ let myp5User = new p5(sketch1 => {
             r0 = s2;
             s0 = r2;
             edgeV();
-            printText();
+            // printText();
+            n1 = sketch1.createElement('h4', edge0[0].toString(10));
+            n2 = sketch1.createElement('h4', edge0[1].toString(10));
+            n1.position(740, 5);
+            n2.position(840, 5);
+            let wiPos = sketch1.createElement('h4', wi);
+            wiPos.position(n1.x, p1.y);
+
+            let wjPos = sketch1.createElement('h4', wj);
+            wjPos.position(n2.x, p1.y);
+
+            let wippPos = sketch1.createElement('h4', wipp);
+            wippPos.position(n1.x, p2.y);
+
+            let wjppPos = sketch1.createElement('h4', wjpp);
+            wjppPos.position(n2.x, p2.y);
+            selectID = [];
 
         }
         else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, well.x, well.y) < 30) {
