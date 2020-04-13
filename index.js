@@ -24,10 +24,16 @@ let selected = [];
 let selectID = [];
 let r0,r1,r2,s0,s1,s2;
 let b = [];
+// 0 => user information
+// 2 => backend user information
 let edge0 = []
-let edge1 = [];
+//let edge1 = [];
+let edge2 = [];
 let intercr, intercs;
 let wi, wj, wipp, wjpp;
+let wiPos, wjPos, wippPos, wjppPos;
+
+
 
 /*
 Generate random b_i for each of the nodes
@@ -176,6 +182,9 @@ let myp5Graph = new p5(sketch2 => {
     }
     // calling the function
     coloring(0);
+
+    // only need 6 of the 18 permutations
+    threeCol = [threeCol[0], threeCol[1], threeCol[8], threeCol[9], threeCol[16], threeCol[17]];
     console.log(threeCol);
 
     sketch2.draw = () => {
@@ -226,26 +235,34 @@ let myp5User = new p5(sketch1 => {
     let consist;
     let edge;
     let well;
-    let p1, p2, n1, n2;
-
+    let p1, p2, n1, n2, n3, n4;
+    let init_com = "-";
 
     sketch1.setup = () => {
         let canvUser = sketch1.createCanvas(1200, 100);
         canvUser.position(10,5);
-        // set up 3 different functionalities and buttons
-        consist = sketch1.createButton('Check for consistency');
+
+        // chose randomness selection for node i and j
+        node1_r = sketch1.createSelect();
+        node2_s = sketch1.createSelect();
+
+        node1_r.position(60, 70);
+        node2_s.position(node1_r.x+90, node1_r.y);
+
+        node1_r.option('1');
+        node1_r.option('2');
+
+        node2_s.option('1');
+        node2_s.option('2');
+
+
+
+        // set up 2 different buttons
         edge = sketch1.createButton('Edge verification');
         well = sketch1.createButton('Check for well-definition');
 
-        // consistency
-        consist.position(20,60);
-        consist.style('font-size', '20px');
-        consist.style('background-color', sketch1.color(255));
-        consist.style('color: black');
-        consist.mouseClicked(update);
-
         // edge verification
-        edge.position(consist.x ,consist.y + consist.height+20);
+        edge.position(20, 120);
         edge.style('font-size', '20px');
         edge.style('background-color', sketch1.color(255));
         edge.style('color: black');
@@ -257,10 +274,14 @@ let myp5User = new p5(sketch1 => {
         well.style('background-color', sketch1.color(255));
         well.style('color: black');
         well.mouseClicked(update);
-
         // Instruction to user
-        let instruction = sketch1.createElement('h3', "Please choose 2 adjacent nodes followed by one of the operations.");
-        instruction.position(consist.x, 5);
+        let instruction = sketch1.createElement("h3", "Please choose 2 adjacent nodes with appropriate r and s values");
+        instruction.position(edge.x, 5);
+
+        let n1_text = sketch1.createElement("h4", "r_i");
+        let n2_text = sketch1.createElement("h4", "r_j");
+        n1_text.position(30, 50);
+        n2_text.position(node2_s.x-30, 50);
 
         // set up output table
         p1 = sketch1.createElement('h4', "Prover 1");
@@ -268,117 +289,106 @@ let myp5User = new p5(sketch1 => {
         p2 = sketch1.createElement('h4', "Prover 2");
         p2.position(600, p1.y + p1.height*2);
 
-        if(edge0[0] == null || edge0[1]== null ) {
-            n1 = sketch1.createElement('h4', "Node " );
-            n2 = sketch1.createElement('h4', "Node " );
-            n1.position(700, 5);
-            n2.position(800, 5);
-        }
-    };
-    /*
-    Function to dynamically display output
-     */
-    function printText(){
+        // node names
+        n1 = sketch1.createElement('h4', "Node i" );
+        n2 = sketch1.createElement('h4', "Node j" );
+        n3 = sketch1.createElement('h4', "Node i'");
+        n4 = sketch1.createElement('h4', "Node j'");
+        n1.position(700, 5);
+        n2.position(800, 5);
+        n3.position(900, 5);
+        n4.position(1000, 5);
 
-        n1 = sketch1.createElement('h4', edge0[0].toString(10));
-        n2 = sketch1.createElement('h4', edge0[1].toString(10));
-        n1.position(740, 5);
-        n2.position(840, 5);
-        let wiPos = sketch1.createElement('h4', wi);
+        // commit values
+        wiPos = sketch1.createElement('h4', init_com);
         wiPos.position(n1.x, p1.y);
 
-        let wjPos = sketch1.createElement('h4', wj);
+        wjPos = sketch1.createElement('h4', init_com);
         wjPos.position(n2.x, p1.y);
 
-        let wippPos = sketch1.createElement('h4', wipp);
-        wippPos.position(n1.x, p2.y);
+        wippPos = sketch1.createElement('h4', init_com);
+        wippPos.position(n3.x, p2.y);
 
-        let wjppPos = sketch1.createElement('h4', wjpp);
-        wjppPos.position(n2.x, p2.y);
-        selectID = [];
-    }
+        wjppPos = sketch1.createElement('h4', init_com);
+        wjppPos.position(n4.x, p2.y);
+
+        if(edge0[0] == null || edge0[1]== null ) {
+            n1.html("Node i" );
+            n2.html("Node j" );
+            n3.html("Node i'");
+            n4.html("Node j'");
+
+            wiPos.html(init_com);
+            wjPos.html(init_com);
+            wippPos.html(init_com);
+            wjppPos.html(init_com);
+
+        }
+
+    };
+
     /*
     Dynamic update when clicking on one of the 3 functionalities
      */
     let update = () => {
+        // randomness for user
+        r0 = node1_r.value();
+        s0 = node2_s.value();
+
+        // randomness for backend verifier
         r2 = getRandomInt(1,2);
         s2 = 3 - r2;
         edge0 = [...selectID];
-        if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, consist.x, consist.y ) < 30){
-            consist.style('background-color', sketch1.color(255,200,200));
-            r0 = r2;
-            s0 = s2;
-            consistency();
-            // printText();
-            n1 = sketch1.createElement('h4', edge0[0].toString(10));
-            n2 = sketch1.createElement('h4', edge0[1].toString(10));
-            n1.position(740, 5);
-            n2.position(840, 5);
-            let wiPos = sketch1.createElement('h4', wi);
-            wiPos.position(n1.x, p1.y);
-
-            let wjPos = sketch1.createElement('h4', wj);
-            wjPos.position(n2.x, p1.y);
-
-            let wippPos = sketch1.createElement('h4', wipp);
-            wippPos.position(n1.x, p2.y);
-
-            let wjppPos = sketch1.createElement('h4', wjpp);
-            wjppPos.position(n2.x, p2.y);
-            selectID = [];
-
-        }
-        else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, edge.x, edge.y) < 30){
+        if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, edge.x, edge.y) < 30){
             edge.style('background-color', sketch1.color(255,200,200));
-            r0 = s2;
-            s0 = r2;
+            // r0 = s2;
+            // s0 = r2;
             edgeV();
             // printText();
-            n1 = sketch1.createElement('h4', edge0[0].toString(10));
-            n2 = sketch1.createElement('h4', edge0[1].toString(10));
-            n1.position(740, 5);
-            n2.position(840, 5);
-            let wiPos = sketch1.createElement('h4', wi);
-            wiPos.position(n1.x, p1.y);
+            n1.html("Node i = " + edge0[0].toString(10));
+            n2.html("Node j = " + edge0[1].toString(10));
 
-            let wjPos = sketch1.createElement('h4', wj);
-            wjPos.position(n2.x, p1.y);
+            wiPos.html(wi);
+            wjPos.html(wj);
+            wippPos.html(wipp);
+            wjppPos.html(wjpp);
 
-            let wippPos = sketch1.createElement('h4', wipp);
-            wippPos.position(n1.x, p2.y);
 
-            let wjppPos = sketch1.createElement('h4', wjpp);
-            wjppPos.position(n2.x, p2.y);
             selectID = [];
-
-        }
-        else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, well.x, well.y) < 30) {
+        } else if (sketch1.dist(sketch1.mouseX, sketch1.mouseY, well.x, well.y) < 30) {
             well.style('background-color', sketch1.color(255, 200, 200));
 
-            r0 = r2;
-            s0 = s2;
+            // r0 = r2;
+            // s0 = s2;
             let ind = getRandomInt(0, 1);
+            // id of intersecting node
             intercr = selectID[ind];
             intercs = selectID[1 - ind];
+            n1.html("Node i = " + edge0[0].toString(10));
+            n2.html("Node j = " + edge0[1].toString(10));
             wellDef();
-            n1 = sketch1.createElement('h4', edge0[0].toString(10));
-            n2 = sketch1.createElement('h4', edge0[1].toString(10));
-            n1.position(740, 5);
-            n2.position(840, 5);
-            let luck = getRandomInt(0, 1);
-            if (luck == 1) {
-                let wiPos = sketch1.createElement('h4', wi);
-                wiPos.position(n1.x, p1.y);
-                let wippPos = sketch1.createElement('h4', wipp);
-                wippPos.position(n1.x, p2.y);
-            }
-            else {
-            let wjPos = sketch1.createElement('h4', wj);
-            wjPos.position(n2.x, p1.y);
+            let luck = getRandomInt(0, 2);
+            if (luck == 0) {
+                // node i is intersected
+                wiPos.html(wi);
+                wippPos.html(wipp);
 
-            let wjppPos = sketch1.createElement('h4', wjpp);
-            wjppPos.position(n2.x, p2.y);
             }
+            else if (luck == 1) {
+                // node j is intersected
+                wjPos.html(wj);
+                wjppPos.html(wjpp);
+            } else {
+                consistency();
+
+                wiPos.html(wi);
+                wippPos.html(wipp);
+
+                wjPos.html(wj);
+                wjppPos.html(wjpp);
+
+            }
+            console.log("luck=" + luck);
             selectID = [];
         }
     };
