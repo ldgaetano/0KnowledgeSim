@@ -3,16 +3,15 @@
  */
 
 const diameter = 20;
+const lifespan = 0;
 
 // The provers
 let p1;
 let p2;
-let p3;
 
 // The verifiers
 let v1;
 let v2;
-let v3;
 
 let entitySelectedIndex = -1;
 let provers;
@@ -431,60 +430,84 @@ let myp5 = new p5(sketch => {
 
         let canv = sketch.createCanvas(500, 500);
         canv.position(600, 200)
+
         resetSketch();
         let reset = sketch.createButton("reset");
         reset.position(600,150)
         reset.mousePressed(resetSketch);
+
+        // let start = sketch.createButton("Start");
+        // start.position(500, 70);
+        // start.mousePressed(sketch.draw);
     }
 
+
+
+
+    let resetSketch = () => {
+        p1 = new Prover(100, 50);
+        p2 = new Prover(sketch.width - 50, sketch.height -50 );
+
+        v1 = new Verifier(50, 50);
+        v2 = new Verifier(sketch.width - 100, sketch.height - 50);
+
+        provers = [p1, p2];
+        verifiers = [v1, v2];
+    }
+    let complete = () => {
+        for (let i = 0; i < verifiers.length; i++){
+            if(verifiers[i].rings.length == 0) continue;
+            for (let j=0; j < verifiers[i].rings.length; j++){
+                let ring = verifiers[i].rings[j];
+                let ringp = provers[i].rings[j];
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y);
+                if((ringp.diameter / 2 >= d) && (ring.diameter / 2 >= d)){
+                    // verifiers[i].changeCol(ring);
+                    // provers[i].changeCol(ringp);
+                    verifiers[i].rings.shift();
+                    provers[i].rings.shift();
+                    // ringp.lifespan = false;
+                    // ring.lifespan = false;
+                }
+            }
+        }
+    }
     let checkIfTouching = () => {
-        for (var i = 0; i < verifiers.length; ++i) {
+        for (let i = 0; i < verifiers.length; ++i) {
             if (verifiers[i].rings.length == 0) continue;
             let ring = verifiers[i].rings[0]
-            for (var j = 0; j < verifiers.length; ++j) {
+            for (let j = 0; j < verifiers.length; ++j) {
                 if (i == j) continue;
                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2
                 if (ring.diameter / 2 >= d) {
-                    sketch.noLoop()
+                    sketch.noLoop();
                     return;
                 }
             }
         }
     }
 
-    let resetSketch = () => {
-        p1 = new Prover(sketch.width /2, sketch.height/6);
-        p2 = new Prover(sketch.width / 10, sketch.height -100 );
-        p3 = new Prover(sketch.width - 100, sketch.height - 100);
-
-        v1 = new Verifier(sketch.width / 2, sketch.height/6+50);
-        v2 = new Verifier(sketch.width /10 + 50, sketch.height - 100);
-        v3 = new Verifier(sketch.width-150 , sketch.height - 100);
-
-        provers = [p1, p2, p3];
-        verifiers = [v1, v2, v3];
-    }
-
     sketch.draw = () => {
         sketch.background(220);
+        complete();
+        checkIfTouching();
 
-        provers.forEach((e) => {
+        verifiers.forEach((e) => {
             e.update(sketch)
         });
-        provers.forEach((e) => {
-            e.render(sketch)
-        });
-        Verifier.updateAll(sketch, verifiers, entitySelectedIndex);
-
         verifiers.forEach((e) => {
             e.render(sketch)
         });
+        Prover.updateAll(sketch, provers, entitySelectedIndex);
 
-        checkIfTouching()
+        provers.forEach((e) => {
+            e.render(sketch)
+        });
+
     };
 
     sketch.mousePressed = () => {
-        verifiers.forEach((e, i) => {
+        provers.forEach((e, i) => {
             if (sketch.dist(sketch.mouseX, sketch.mouseY, e.x, e.y) < e.diameter) {
                 entitySelectedIndex = i;
             }

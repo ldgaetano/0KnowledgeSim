@@ -1,4 +1,4 @@
-const speed = 100;
+const speed = 0.5;
 
 class Verifier {
     constructor(x, y) {
@@ -24,7 +24,9 @@ class Verifier {
         this.rings = this.rings.map(ring => ({
             x: ring.x,
             y: ring.y,
-            diameter: ring.diameter + speed / ring.diameter,
+            diameter: ring.diameter + speed,
+            lifespan: ring.lifespan,
+
         }));
     }
 
@@ -37,19 +39,18 @@ class Verifier {
         sketch.noFill();
         sketch.stroke(0);
         this.rings.forEach(ring => {
+            if (ring.lifespan == false) {
+                sketch.stroke(220);
+            }
             sketch.circle(ring.x, ring.y, ring.diameter); // Draw ring
-        })
+            sketch.stroke(0);
+        });
         sketch.pop();
     }
 
-    static updateAll(sketch, entities, selectedIndex) {
-        entities.forEach((e, i) => {
-            e.update(sketch);
-            if (i == selectedIndex) {
-                e.x = sketch.mouseX;
-                e.y = sketch.mouseY;
-            }
-        });
+    changeCol(ring) {
+        ring.lifespan = false;
     }
+
 
 }
