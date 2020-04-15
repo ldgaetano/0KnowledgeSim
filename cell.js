@@ -1,11 +1,14 @@
 class Cell {
+    revealCol;
     constructor(id, x, y) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.flags = {
             hover : true,
-            clicked: false
+            clicked: false,
+            revealed: false
+
         };
         this.radius = 20;
     }
@@ -33,6 +36,9 @@ class Cell {
         if (this.flags.clicked) {
             sketch.fill('purple');
         }
+        if (this.flags.revealed) {
+            sketch.fill(this.revealCol);
+        }
 
         sketch.circle(this.x, this.y, this.radius*2);
     }
@@ -45,8 +51,8 @@ class Cell {
         entity.forEach(cell => {
             cell.flags.clicked = true;
         });
-
     }
+
     // clicked(x, y, sketch){
     //     if (isInside(x,y,sketch)) {
     //         sketch.fill('purple');
