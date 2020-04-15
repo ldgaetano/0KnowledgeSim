@@ -1,5 +1,3 @@
-const speed = 0.5;
-
 class Verifier {
     constructor(x, y) {
         this.x = x;
@@ -9,7 +7,7 @@ class Verifier {
     }
 
     update(sketch) {
-        if (sketch.frameCount % 100 == 0) {
+        if (sketch.frameCount % rate == 0) {
             this.rings.push({
                 x: this.x,
                 y: this.y,

@@ -3,7 +3,8 @@
  */
 
 const diameter = 20;
-const lifespan = 0;
+const speed = 1;
+const rate =  50
 
 // The provers
 let p1;
@@ -799,19 +800,16 @@ let myp5 = new p5(sketch => {
         verifiers = [v1, v2];
     }
     let complete = () => {
-        for (let i = 0; i < verifiers.length; i++){
-            if(verifiers[i].rings.length == 0) continue;
-            for (let j=0; j < verifiers[i].rings.length; j++){
-                let ring = verifiers[i].rings[j];
+        for (let i = 0; i < provers.length; i++){
+            if(provers[i].rings.length == 0) continue;
+            for (let j=0; j < provers[i].rings.length; j++){
+                // let ring = verifiers[i].rings[j];
                 let ringp = provers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y);
-                if((ringp.diameter / 2 >= d) && (ring.diameter / 2 >= d)){
-                    // verifiers[i].changeCol(ring);
-                    // provers[i].changeCol(ringp);
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter / 2;
+                if(ringp.diameter / 2 >= d){
                     verifiers[i].rings.shift();
                     provers[i].rings.shift();
-                    // ringp.lifespan = false;
-                    // ring.lifespan = false;
+
                 }
             }
         }
@@ -819,10 +817,10 @@ let myp5 = new p5(sketch => {
     let checkIfTouching = () => {
         for (let i = 0; i < verifiers.length; ++i) {
             if (verifiers[i].rings.length == 0) continue;
-            let ring = verifiers[i].rings[0]
+            let ring = verifiers[i].rings[0];
             for (let j = 0; j < verifiers.length; ++j) {
                 if (i == j) continue;
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
                 if (ring.diameter / 2 >= d) {
                     sketch.noLoop();
                     return;
@@ -830,12 +828,25 @@ let myp5 = new p5(sketch => {
             }
         }
     }
+    let set = new Set();
 
+    let commit = () => {
+        for (let i  = 0; i < verifiers.length; i++){
+            if (verifiers[i].rings.length == 0) continue;
+            for (let j = 0; j < verifiers[i].rings.length; j++){
+                let ring = verifiers[i].rings[j];
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter * 2;
+                if (ring.diameter / 2 >= d){
+                    // provers[i].update(sketch);
+                    // provers[i].render_ring(sketch);
+                    set.add(provers[i])
+                }
+            }
+
+        }
+    }
     sketch.draw = () => {
         sketch.background(220);
-        complete();
-        checkIfTouching();
-
         verifiers.forEach((e) => {
             e.update(sketch)
         });
@@ -847,8 +858,16 @@ let myp5 = new p5(sketch => {
         provers.forEach((e) => {
             e.render(sketch)
         });
+        commit();
+        set.forEach((e)=> {
+            e.update(sketch);
+            e.render_ring(sketch);
+        });
+        complete();
+        checkIfTouching();
 
     };
+
 
     sketch.mousePressed = () => {
         provers.forEach((e, i) => {

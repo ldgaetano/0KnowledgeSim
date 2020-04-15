@@ -1,6 +1,3 @@
-// const diameter = 20;
-const c = 0.5;
-
 class Prover {
     constructor(x, y) {
         this.x = x;
@@ -10,7 +7,7 @@ class Prover {
     }
 
     update(sketch) {
-        if (sketch.frameCount % 100 == 0) {
+        if (sketch.frameCount % rate == 0) {
             this.rings.push({
                 x: this.x,
                 y: this.y,
@@ -25,7 +22,7 @@ class Prover {
         this.rings = this.rings.map(ring => ({
             x: ring.x,
             y: ring.y,
-            diameter: ring.diameter + c,
+            diameter: ring.diameter + speed,
             lifespan: ring.lifespan,
         }));
     }
@@ -35,16 +32,19 @@ class Prover {
         sketch.stroke('purple');
         sketch.fill('purple');
         sketch.circle(this.x, this.y, diameter); // Draw entity
-
-
+        // sketch.noFill();
+        // sketch.stroke('purple');
+        // this.rings.forEach(ring => {
+        //     sketch.circle(ring.x, ring.y, ring.diameter); // Draw ring
+        // });
+        sketch.pop();
+    }
+    render_ring(sketch) {
+        sketch.push();
         sketch.noFill();
         sketch.stroke('purple');
         this.rings.forEach(ring => {
-            if (ring.lifespan == false) {
-                sketch.stroke(220);
-            }
-            sketch.circle(ring.x, ring.y, ring.diameter); // Draw ring
-            sketch.stroke('purple')
+            sketch.circle(ring.x, ring.y, ring.diameter);
         });
         sketch.pop();
     }
@@ -55,7 +55,7 @@ class Prover {
 
     static updateAll(sketch, entities, selectedIndex) {
         entities.forEach((e, i) => {
-            e.update(sketch);
+            // e.update(sketch);
             if (i == selectedIndex) {
                 e.x = sketch.mouseX;
                 e.y = sketch.mouseY;
@@ -63,3 +63,4 @@ class Prover {
         });
     }
 }
+
