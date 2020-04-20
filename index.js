@@ -224,7 +224,8 @@ let myp5Graph = new p5(sketch2 => {
                 if(selected.length < 2) {
                     selected.push(cell);
                     selectID.push(cell.id);
-                    console.log("Cells Selected: " + selectID);
+                    console.log("Cells Selected: \n");
+                    console.log(selectID);
                     cell.changeCol(selected);
                 } else{
                     selected = [];
@@ -459,8 +460,8 @@ let myp5User = new p5(sketch1 => {
         // just for consistency
         edge0 = [...selectID];
 
-        console.log("Node i: " + edge0[0]);
-        console.log("Node j: " + edge0[1]);
+        console.log("Node i: " + selectID[0]);
+        console.log("Node j: " + selectID[1]);
 
         console.log("r = " + r0);
         console.log("s = " + s0);
@@ -469,23 +470,6 @@ let myp5User = new p5(sketch1 => {
 
         selected2 = getEdge();                          // cell objects
         selectID2 = [selected2[0].id, selected2[1].id]; // cell id
-
-        // // get temp index for backend cell
-        // let cell_ip_index = getRandomInt(0, 11);
-        // let cell_jp_index = getRandomInt(0, 11);
-        //
-        // // want the cell index to be different so both cells form an edge
-        // while (cell_jp_index == cell_ip_index) {
-        //     cell_jp_index = getRandomInt(0, 11);
-        // }
-        //
-        // // order cell in ascending order
-        // if (cell_ip_index > cell_jp_index) {
-        //     let temp = cell_ip_index;
-        //     cell_ip_index = cell_jp_index;
-        //     cell_jp_index = temp;
-        // }
-        //
 
         console.log("Node i': " + selectID2[0]);
         console.log("Node j': " + selectID2[1]);
