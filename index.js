@@ -729,10 +729,10 @@ let myp5User = new p5(sketch1 => {
     Commit value for the COMMIT DISHONEST case
      */
     function dishonest_commits() {
-        wi = checkModSum(getRandomInt(0, 2) * r0 + getRandomInt(0, 2));
-        wj = checkModSum(getRandomInt(0, 2) * s0 + getRandomInt(0, 2));
-        wipp = checkModSum(getRandomInt(0, 2) * r2 + getRandomInt(0, 2));
-        wjpp = checkModSum(getRandomInt(0, 2) * s2 + getRandomInt(0, 2));
+        wi = getRandomInt(0, 2);
+        wj = getRandomInt(0, 2);
+        wipp = getRandomInt(0, 2);
+        wjpp = getRandomInt(0, 2);
     }
 
     /*
