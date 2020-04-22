@@ -235,9 +235,15 @@ let myp5Graph = new p5(sketch2 => {
                     console.log("Cells Selected: \n");
                     console.log(selectID);
                     cell.changeCol(selected);
-                } else{
+                 }
+                    else{
                     selected = [];
                     selectID =[]
+                    selected.push(cell);
+                    selectID.push(cell.id);
+                    console.log("Cells Selected: \n");
+                    console.log(selectID);
+                    cell.changeCol(selected);
                 }
             } else {
                 cell.flags.clicked = false;
@@ -299,7 +305,7 @@ let myp5User = new p5(sketch1 => {
 
         // set up the different buttons
         honest = sketch1.createButton('Honest Prover Case');
-        commit = sketch1.createButton('Commit');
+        commit = sketch1.createButton('Request');
         edge = sketch1.createButton('Edge Verification Test');
         well = sketch1.createButton('Well-definition Test');
         dishonest = sketch1.createButton('Dishonest Prover Case');
@@ -440,7 +446,10 @@ let myp5User = new p5(sketch1 => {
 
         // calculate commits
         commits(randomIndex);
-
+        console.log(wi)
+        console.log(wj)
+        console.log(wipp)
+        console.log(wjpp)
         // display commits
         n1.html("Node i = " + edge0[0].toString(10));
         n2.html("Node j = " + edge0[1].toString(10));
@@ -460,25 +469,127 @@ let myp5User = new p5(sketch1 => {
         // Go through protocol and display color of nodes if it occurs
 
         // check for edge verification, if passed, then display edge
-        if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
-            console.log("Edge-Verification Test Passed");
-            // change the reveal flag to show the color
-            selected.forEach(cell => {
-                console.log(cell.revealCol);
-                cell.flags.revealed = true;
-                console.log(cell);
-                previous.push(cell);
-            });
-        } else {
-            if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) != false) {
-                console.log("Well-Definition Test Passed");
-            } else {
-                console.log("Edges are disjoint!");
+        // if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
+        //     console.log("Edge-Verification Test Passed");
+        //     // change the reveal flag to show the color
+        //     selected.forEach(cell => {
+        //         console.log(cell.revealCol);
+        //         cell.flags.revealed = true;
+        //         console.log(cell);
+        //         previous.push(cell);
+        //     });
+        // } else if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) != false){
+        //     console.log('bye')
+        //     console.log("Well-Definition Test Passed");
+        //
+        // } else{
+        //     console.log('hi')
+        //     if (i == ip && r0 != r2){
+        //         console.log(selected[0].revealCol);
+        //         selected[0].flags.revealed = true;
+        //         console.log(selected[0]);
+        //         previous.push(selected[0]);
+        //     }
+        //     else if (i == jp && r0 != s2){
+        //         console.log(selected[0].revealCol);
+        //         selected[0].flags.revealed = true;
+        //         console.log(selected[0]);
+        //         previous.push(selected[0]);
+        //     }
+        //     else if (j == jp && s0 != s2){
+        //         console.log(selected[1].revealCol);
+        //         selected[1].flags.revealed = true;
+        //         console.log(selected[1]);
+        //         previous.push(selected[1]);
+        //     }
+        //     else if (j == ip && s0 != r2){
+        //         console.log(selected[1].revealCol);
+        //         selected[1].flags.revealed = true;
+        //         console.log(selected[1]);
+        //         previous.push(selected[1]);
+        //     }
+        //     else{
+        //         console.log('here')
+        //         console.log("Edges are disjoint!");
+        //
+        //     }
+        // }
+        if(i == ip && j==jp) {
+            if (r0 != r2) {
+                console.log(selected[0].revealCol);
+                selected[0].flags.revealed = true;
+                console.log(selected[0]);
+                previous.push(selected[0]);
+            }
+            if (s0 != s2) {
+                console.log(selected[1].revealCol);
+                selected[1].flags.revealed = true;
+                console.log(selected[1]);
+                previous.push(selected[1]);
+            }
+            if (r0 == r2) {
+                if(wi == wipp){
+                    console.log("Well definition passed on node i and i'")
+                }
+            }
+            if (s0 == s2) {
+                if(wj == wjpp){
+                    console.log("Well definition passed on node j and j'")
+                }
             }
         }
+        else{
 
+            if (i == ip && r0 != r2){
+                console.log(selected[0].revealCol);
+                selected[0].flags.revealed = true;
+                console.log(selected[0]);
+                previous.push(selected[0]);
+            }
+            else if (i == jp && r0 != s2){
+                console.log(selected[0].revealCol);
+                selected[0].flags.revealed = true;
+                console.log(selected[0]);
+                previous.push(selected[0]);
+            }
+            else if (j == jp && s0 != s2){
+                console.log(selected[1].revealCol);
+                selected[1].flags.revealed = true;
+                console.log(selected[1]);
+                previous.push(selected[1]);
+            }
+            else if (j == ip && s0 != r2){
+                console.log(selected[1].revealCol);
+                selected[1].flags.revealed = true;
+                console.log(selected[1]);
+                previous.push(selected[1]);
+            }
+            else if (i == ip && r0 == r2){
+                if(wi == wipp) {
+                    console.log("Well definition passed for node i and i'");
+                }
+            }
+            else if (i == jp && r0 == s2){
+                if(wi == wjpp) {
+                    console.log("Well definition passed for node i and j'");
+                }
+            }
+            else if (j == jp && s0 == s2){
+                if(wj == wjpp) {
+                    console.log("Well definition passed for node j and j'");
+                }
+            }
+            else if (j == ip && s0 == r2){
+                if(wj == wipp) {
+                    console.log("Well definition passed for node j and i'");
+                }
+            }
+            else{
+                console.log("Edges are disjoint!");
+
+            }
+        }
         selectID = [];
-
     };
 
     /*
@@ -667,26 +778,97 @@ let myp5User = new p5(sketch1 => {
         // Go through protocol and display color of nodes if it occurs
 
         // check for edge verification, if passed, then display edge
-        if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
-            console.log("Edge-Verification Test Passed");
-            // change the reveal flag to show the color
-            selected.forEach(cell => {
-                console.log(cell.revealCol);
-                cell.flags.revealed = true;
-                console.log(cell);
-                previous.push(cell);
-            });
-        } else {
-            if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) != false) {
-                console.log("Well-Definition Test Passed");
-            } else {
-                console.log("Edges are disjoint!");
+        // if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
+        //     console.log("Edge-Verification Test Passed");
+        //     // change the reveal flag to show the color
+        //     selected.forEach(cell => {
+        //         console.log(cell.revealCol);
+        //         cell.flags.revealed = true;
+        //         console.log(cell);
+        //         previous.push(cell);
+        //     });
+        // }
+        // else if((i == ip && j == jp) && (r0 != r2 || s0!= s2)){
+        //     if(r0 != r2){
+        //         console.log(selected[0].revealCol);
+        //         selected[0].flags.revealed = true;
+        //         console.log(selected[0]);
+        //         previous.push(selected[0])
+        //     }
+        //     if(s0 != s2){
+        //         console.log(selected[1].revealCol);
+        //         selected[1].flags.revealed = true;
+        //         console.log(selected[1]);
+        //         previous.push(selected[1])
+        //     }
+        // }
+        // else if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)){
+        //         console.log("Well-Definition Test Passed");
+        //
+        // } else{
+        //     console.log('hi')
+            if(i == ip && j==jp) {
+                if (r0 != r2) {
+                    console.log(selected[0].revealCol);
+                    selected[0].flags.revealed = true;
+                    console.log(selected[0]);
+                    previous.push(selected[0]);
+                }
+                if (s0 != s2) {
+                    console.log(selected[1].revealCol);
+                    selected[1].flags.revealed = true;
+                    console.log(selected[1]);
+                    previous.push(selected[1]);
+                }
+                if (r0 == r2) {
+                    if(wi == wipp){
+                        console.log('Well definition passed on node i and i')
+                    }
+                }
+                if (s0 == s2) {
+                   if(wj == wjpp){
+                       console.log('Well definition passed on node j and j')
+                   }
+                }
             }
+            else{
+
+                if (i == ip && r0 != r2){
+                    console.log(selected[0].revealCol);
+                    selected[0].flags.revealed = true;
+                    console.log(selected[0]);
+                    previous.push(selected[0]);
+                }
+                else if (i == jp && r0 != s2){
+                    console.log(selected[0].revealCol);
+                    selected[0].flags.revealed = true;
+                    console.log(selected[0]);
+                    previous.push(selected[0]);
+                }
+                else if (j == jp && s0 != s2){
+                    console.log(selected[1].revealCol);
+                    selected[1].flags.revealed = true;
+                    console.log(selected[1]);
+                    previous.push(selected[1]);
+                }
+                else if (j == ip && s0 != r2){
+                    console.log(selected[1].revealCol);
+                    selected[1].flags.revealed = true;
+                    console.log(selected[1]);
+                    previous.push(selected[1]);
+                }
+                else{
+                    console.log("Edges are disjoint!");
+
+                }
         }
+
 
         selectID = [];
 
     };
+
+
 
     /*
     Function called when dishonest prover case button clicked
@@ -740,60 +922,73 @@ let myp5User = new p5(sketch1 => {
      */
     function commits(randomIndex) {
         wi = checkModSum(b[edge0[0]] * r0 + threeCol[randomIndex][edge0[0]]);
+
         wj = checkModSum(b[edge0[1]] * s0 + threeCol[randomIndex][edge0[1]]);
         wipp = checkModSum(b[selectID2[0]] * r2 + threeCol[randomIndex][selectID2[0]]);
         wjpp = checkModSum(b[selectID2[1]] * s2 + threeCol[randomIndex][selectID2[1]]);
+        console.log(b[edge0[0]], threeCol[randomIndex][edge0[0]])
+        console.log(b[edge0[1]], threeCol[randomIndex][edge0[1]])
+        console.log(b[selectID2[0]], threeCol[randomIndex][selectID2[0]])
+        console.log(b[selectID2[1]], threeCol[randomIndex][selectID2[1]])
     }
 
     /*
     Check the Edge-Verification Test
      */
-    function edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
-        if ((i == ip) && (j == jp)) {
-            if ((r0 != r2) && (s0 != s2)) {
-                if ((wi + wipp) != (wj + wjpp)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    // function edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
+    //     if ((i == ip) && (j == jp)) {
+    //         if ((r0 != r2) && (s0 != s2)) {
+    //             if ((wi + wipp) != (wj + wjpp)) {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     /*
     Check the Well-Definition Test
      */
-    function well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
-        // CASE 1: Same edge
-        if ((i == ip) && (j == jp)) {
-            if ((r0 == r2) && (s0 == s2)) {
-                if ((wi == wipp) && (wj == wjpp)){
-                    console.log("Same edge intersects");
-                    return true;
-                }
-            }
-        }
-
-        // CASE 2: Node i intersects
-        if (i == ip) {
-            if (r0 == r2) {
-                if (wi == wipp) {
-                    console.log("Node i and i' intersect");
-                    return true;
-                }
-            }
-        }
-
-        // CASE 3: Node j intersects
-        if (j == jp) {
-            if (s0 == s2) {
-                if (wj == wjpp) {
-                    console.log("Node j and j' intersect");
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    // function well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
+    //     // CASE 1: Same edge
+    //     if ((i == ip) && (j == jp)) {
+    //         if ((r0 == r2) && (s0 == s2)) {
+    //             if ((wi == wipp) && (wj == wjpp)){
+    //                 console.log("Same edge intersects");
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //
+    //     // CASE 2: Node i intersects
+    //     if (i == ip) {
+    //         if (r0 == r2) {
+    //             if (wi == wipp) {
+    //                 console.log("Node i and i' intersect");
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //
+    //     // CASE 3: Node j intersects
+    //     if (j == jp) {
+    //         if (s0 == s2) {
+    //             if (wj == wjpp) {
+    //                 console.log("Node j and j' intersect");
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     if(i == jp && r0 == s2 && wi == wjpp){
+    //         console.log("Node i and j' intersect");
+    //         return true;
+    //     }
+    //     if (j == ip && s0 == r2 && wj == wipp){
+    //         console.log("Node j and i' intersect");
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     /*
     Calculation for each of the 3 cases
@@ -837,13 +1032,11 @@ let myp5User = new p5(sketch1 => {
         });
     }
 
+
     /*
     Check sum for modulo arithmetic
      */
     function checkModSum(sum) {
-        if (sum < 0) {
-            sum = -1 * sum;
-        }
         return sum % 3;
     }
 
