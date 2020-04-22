@@ -46,6 +46,17 @@ let cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8, cell_9, cell
 // connections
 let c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21;
 
+// Buttons
+let honest
+let edge;
+let well;
+let request;
+let dishonest;
+let dishonest_commit;
+let pr1, pr2, n1, n2, n3, n4;
+let init_com = "-";
+let node1_r;
+let node2_s;
 /*
 Color value is based on index of graphCol array:
     0 = "red"
@@ -63,6 +74,8 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is exclusive and the minimum is inclusive
 };
+
+
 
 /*
     Canvas that displays the graph
@@ -263,16 +276,7 @@ let myp5Graph = new p5(sketch2 => {
 User interaction canvas
  */
 let myp5User = new p5(sketch1 => {
-    let honest
-    let edge;
-    let well;
-    let commit;
-    let dishonest;
-    let dishonest_commit;
-    let p1, p2, n1, n2, n3, n4;
-    let init_com = "-";
-    let node1_r;
-    let node2_s;
+
 
     sketch1.setup = () => {
         let canvUser = sketch1.createCanvas(1200, 100);
@@ -305,7 +309,7 @@ let myp5User = new p5(sketch1 => {
 
         // set up the different buttons
         honest = sketch1.createButton('Honest Prover Case');
-        commit = sketch1.createButton('Request');
+        request = sketch1.createButton('Request');
         edge = sketch1.createButton('Edge Verification Test');
         well = sketch1.createButton('Well-definition Test');
         dishonest = sketch1.createButton('Dishonest Prover Case');
@@ -319,15 +323,16 @@ let myp5User = new p5(sketch1 => {
         honest.style('color: black');
         honest.mouseClicked(honest_update);
 
-        // commit
-        commit.position(honest.x, honest.y+honest.height+20);
-        commit.style('font-size', '20px');
-        commit.style('background-color', sketch1.color(255));
-        commit.style('color: black');
-        commit.mouseClicked(commit_update);
+        // request
+        request.position(honest.x, honest.y+honest.height+20);
+        request.style('font-size', '20px');
+        request.style('background-color', sketch1.color(255));
+        request.style('color: black');
+        request.id('comButton');
+        request.mouseClicked(commit_update);
 
         // edge verification
-        edge.position(commit.x, commit.y+commit.height+20);
+        edge.position(request.x, request.y+request.height+20);
         edge.style('font-size', '20px');
         edge.style('background-color', sketch1.color(255));
         edge.style('color: black');
@@ -348,17 +353,17 @@ let myp5User = new p5(sketch1 => {
         dishonest.mouseClicked(dishonest_update);
 
         // dishonest commit button
-        dishonest_commit.position(dishonest.x, commit.y);
+        dishonest_commit.position(dishonest.x, request.y);
         dishonest_commit.style('font-size', '20px');
         dishonest_commit.style('background-color', sketch1.color(255));
         dishonest_commit.style('color: black');
         dishonest_commit.mouseClicked(dishonest_commit_update);
 
         // set up output table
-        p1 = sketch1.createElement('h4', "Prover 1");
-        p1.position(600, 40);
-        p2 = sketch1.createElement('h4', "Prover 2");
-        p2.position(600, p1.y + p1.height*2);
+        pr1 = sketch1.createElement('h4', "Prover 1");
+        pr1.position(600, 40);
+        pr2 = sketch1.createElement('h4', "Prover 2");
+        pr2.position(600, pr1.y + pr1.height*2);
 
         // node names
         n1 = sketch1.createElement('h4', "Node i" );
@@ -372,16 +377,16 @@ let myp5User = new p5(sketch1 => {
 
         // commit values
         wiPos = sketch1.createElement('h4', init_com);
-        wiPos.position(n1.x, p1.y);
+        wiPos.position(n1.x, pr1.y);
 
         wjPos = sketch1.createElement('h4', init_com);
-        wjPos.position(n2.x, p1.y);
+        wjPos.position(n2.x, pr1.y);
 
         wippPos = sketch1.createElement('h4', init_com);
-        wippPos.position(n3.x, p2.y);
+        wippPos.position(n3.x, pr2.y);
 
         wjppPos = sketch1.createElement('h4', init_com);
-        wjppPos.position(n4.x, p2.y);
+        wjppPos.position(n4.x, pr2.y);
 
         if(edge0[0] == null || edge0[1]== null ) {
             n1.html("Node i" );
@@ -680,27 +685,40 @@ let myp5User = new p5(sketch1 => {
             let ind = getRandomInt(0, 1);
             intercr = selectID[ind];
             intercs = selectID[1 - ind];
+
             n1.html("Node i = " + edge0[0].toString(10));
             n2.html("Node j = " + edge0[1].toString(10));
 
 
             forced_wellDef(randomIndex);
-
-            let luck = getRandomInt(0, 2);
+            let otherNode = edge0[0];
+            while(otherNode == edge0[0] || otherNode == edge0[1]){
+                otherNode = getRandomInt(0,cells.length-1);
+            }
+            let luck = getRandomInt(0, 6);
             if (luck == 0) {
+                wjPos.html('-');
+                wjppPos.html('-');
                 // node i is intersected
+                n3.html("Node i' = " + edge0[0].toString(10));
+                n4.html("Node j' = " + otherNode.toString(10));
                 wiPos.html(wi);
                 wippPos.html(wipp);
                 console.log("CASE: Node i intersected");
             }
             else if (luck == 1) {
+                wiPos.html('-');
+                wippPos.html('-');
                 // node j is intersected
+                n3.html("Node i' = " + otherNode.toString(10));
+                n4.html("Node j' = " + edge0[1].toString(10));
                 wjPos.html(wj);
                 wjppPos.html(wjpp);
                 console.log("CASE: Node j intersected");
             } else {
                 consistency(randomIndex);
-
+                n3.html("Node i' = " + edge0[0].toString(10));
+                n4.html("Node j' = " + edge0[1].toString(10));
                 wiPos.html(wi);
                 wippPos.html(wipp);
 
@@ -907,6 +925,7 @@ let myp5User = new p5(sketch1 => {
         return [cell1, cell2];
     }
 
+
     /*
     Commit value for the COMMIT DISHONEST case
      */
@@ -1046,7 +1065,6 @@ let myp5User = new p5(sketch1 => {
 /* Information Propagation Simulation*/
 let myp5 = new p5(sketch => {
     sketch.setup = () => {
-
         let canv = sketch.createCanvas(500, 500);
         canv.position(600, 280);
 
