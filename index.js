@@ -21,20 +21,19 @@ let verifiers;
 // The graph cells
 let threeCol = [];
 
+// 0 => user information
+// 2 => backend user information
 let previous = [];
 let selected = [];
 let selectID = [];
-let r0,r1,r2,s0,s1,s2;
+let r0,r2,s0,s2;
 let b = [];
-// 0 => user information
-// 2 => backend user information
-let edge0 = []
-let edge2 = [];
 let selected2 = [];
 let selectID2 = [];
 let intercr, intercs;
 let wi, wj, wipp, wjpp;
 let wiPos, wjPos, wippPos, wjppPos;
+let tempCol = null;
 
 // Arrays where nodes and edges are stored for the 'displayed' graph
 let cells = [];
@@ -47,12 +46,11 @@ let cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8, cell_9, cell
 let c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21;
 
 // Buttons
-let honest
+let honest;
+let dishonest;
+let request;
 let edge;
 let well;
-let request;
-let dishonest;
-let dishonest_commit;
 let pr1, pr2, n1, n2, n3, n4;
 let init_com = "-";
 let node1_r;
@@ -220,17 +218,28 @@ let myp5Graph = new p5(sketch2 => {
         connections.push(c20);
     };
 
-
+    // Draw the graph
     sketch2.draw = () => {
         sketch2.background(220);
         connections.forEach(conn => {
             conn.render(sketch2);
         });
 
+        // Change node colour when hovering over it with mouse
         cells.forEach (cell => {
-            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)) cell.flags.hover = true;
-            else cell.flags.hover = false;
-
+            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)) {
+                cell.flags.hover = true;
+                if (previous.includes(cell)) {
+                    cell.flags.hover = true;
+                    cell.flags.revealed = false;
+                }
+            } else {
+                cell.flags.hover = false;
+                if (previous.includes(cell)) {
+                    cell.flags.hover = false;
+                    cell.flags.revealed = true;
+                }
+            }
             cell.render(sketch2);
         });
 
@@ -245,11 +254,13 @@ let myp5Graph = new p5(sketch2 => {
                 if(selected.length < 2) {
                     selected.push(cell);
                     selectID.push(cell.id);
-                    console.log("Cells Selected: \n");
+                    console.log("Cells Selected Below: \n");
+                    console.log("--Node ID: ");
                     console.log(selectID);
+                    console.log("--Node Object: ");
+                    console.log(selected);
                     cell.changeCol(selected);
-                 }
-                    else{
+                 } else{
                     selected = [];
                     selectID =[]
                     selected.push(cell);
@@ -313,8 +324,6 @@ let myp5User = new p5(sketch1 => {
         edge = sketch1.createButton('Edge Verification Test');
         well = sketch1.createButton('Well-definition Test');
         dishonest = sketch1.createButton('Dishonest Prover Case');
-        dishonest_commit = sketch1.createButton('Commit Dishonest Case');
-
 
         // honest prover button
         honest.position(20, 120);
@@ -329,7 +338,7 @@ let myp5User = new p5(sketch1 => {
         request.style('background-color', sketch1.color(255));
         request.style('color: black');
         request.id('comButton');
-        request.mouseClicked(commit_update);
+        request.mouseClicked(request_update);
 
         // edge verification
         edge.position(request.x, request.y+request.height+20);
@@ -351,13 +360,6 @@ let myp5User = new p5(sketch1 => {
         dishonest.style('background-color', sketch1.color(255));
         dishonest.style('color: black');
         dishonest.mouseClicked(dishonest_update);
-
-        // dishonest commit button
-        dishonest_commit.position(dishonest.x, request.y);
-        dishonest_commit.style('font-size', '20px');
-        dishonest_commit.style('background-color', sketch1.color(255));
-        dishonest_commit.style('color: black');
-        dishonest_commit.mouseClicked(dishonest_commit_update);
 
         // set up output table
         pr1 = sketch1.createElement('h4', "Prover 1");
@@ -388,7 +390,7 @@ let myp5User = new p5(sketch1 => {
         wjppPos = sketch1.createElement('h4', init_com);
         wjppPos.position(n4.x, pr2.y);
 
-        if(edge0[0] == null || edge0[1]== null ) {
+        if(selectID[0] == null || selectID[1]== null ) {
             n1.html("Node i" );
             n2.html("Node j" );
             n3.html("Node i'");
@@ -406,15 +408,19 @@ let myp5User = new p5(sketch1 => {
     /*
     Function called when commit button clicked
      */
-    let commit_update = () => {
+    let request_update = () => {
 
-        console.log("COMMIT");
+        console.log("REQUEST");
 
         // change the flags of the previously selected nodes
         if (previous.length > 0) {
             previous.forEach(cell => {
                 cell.flags.revealed = false;
+                cell.flags.clicked = false;
+                cell.flags.hover = false;
+                cell.revealCol = 255;
             });
+            previous = [];
         }
 
         // pick three-coloring of the graph
@@ -424,9 +430,6 @@ let myp5User = new p5(sketch1 => {
         // user picks edge with r and s
         r0 = node1_r.value();
         s0 = node2_s.value();
-
-        // just for consistency
-        edge0 = [...selectID];
 
         console.log("Node i: " + selectID[0]);
         console.log("Node j: " + selectID[1]);
@@ -456,8 +459,8 @@ let myp5User = new p5(sketch1 => {
         console.log(wipp)
         console.log(wjpp)
         // display commits
-        n1.html("Node i = " + edge0[0].toString(10));
-        n2.html("Node j = " + edge0[1].toString(10));
+        n1.html("Node i = " + selectID[0].toString(10));
+        n2.html("Node j = " + selectID[1].toString(10));
         n3.html("Node i' = " + selectID2[0].toString(10));
         n4.html("Node j' = " + selectID2[1].toString(10));
 
@@ -466,8 +469,8 @@ let myp5User = new p5(sketch1 => {
         wippPos.html(wipp);
         wjppPos.html(wjpp);
 
-        let i = edge0[0];
-        let j = edge0[1];
+        let i = selectID[0];
+        let j = selectID[1];
         let ip = selectID2[0];
         let jp = selectID2[1];
 
@@ -602,11 +605,18 @@ let myp5User = new p5(sketch1 => {
      */
     let edge_update = () => {
 
+        console.log("TEST: Edge-Verification Test");
+
         // change the flags of the previously selected nodes
         if (previous.length > 0) {
             previous.forEach(cell => {
                 cell.flags.revealed = false;
+                cell.flags.revealed = false;
+                cell.flags.clicked = false;
+                cell.flags.hover = false;
+                cell.revealCol = 255;
             });
+            previous = [];
         }
 
         // pick three-coloring of the graph
@@ -620,18 +630,16 @@ let myp5User = new p5(sketch1 => {
         console.log("r = " + r0);
         console.log("s = " + s0);
 
-        edge0 = [...selectID];
-
         r2 = s0;
         s2 = r0;
-        console.log("TEST: Edge-Verification");
+
         console.log("r' = " + r2);
         console.log("s' = " + s2);
         forced_edgeV(randomIndex);
-        n1.html("Node i = " + edge0[0].toString(10));
-        n2.html("Node j = " + edge0[1].toString(10));
-        n3.html("Node i' = " + edge0[0].toString(10));
-        n4.html("Node j' = " + edge0[1].toString(10));
+        n1.html("Node i = " + selectID[0].toString(10));
+        n2.html("Node j = " + selectID[1].toString(10));
+        n3.html("Node i' = " + selectID[0].toString(10));
+        n4.html("Node j' = " + selectID[1].toString(10));
 
         wiPos.html(wi);
         wjPos.html(wj);
@@ -645,6 +653,8 @@ let myp5User = new p5(sketch1 => {
             console.log(cell);
             previous.push(cell);
         });
+        console.log("Previous:");
+        console.log(previous);
 
         selectID = [];
 
@@ -654,11 +664,19 @@ let myp5User = new p5(sketch1 => {
     Function called when well definition test button clicked
      */
     let well_update = () => {
+
+        console.log("TEST: Well-Definition Test");
+
         // change the flags of the previously selected nodes
         if (previous.length > 0) {
             previous.forEach(cell => {
                 cell.flags.revealed = false;
+                cell.flags.revealed = false;
+                cell.flags.clicked = false;
+                cell.flags.hover = false;
+                cell.revealCol = 255;
             });
+            previous = [];
         }
 
         // pick three-coloring of the graph
@@ -672,12 +690,12 @@ let myp5User = new p5(sketch1 => {
         console.log("r = " + r0);
         console.log("s = " + s0);
 
-        edge0 = [...selectID];
+        selectID = [...selectID];
 
             // forcing the randomness to be the same
             r2 = r0;
             s2 = s0;
-            console.log("TEST: Well-Definition")
+
             console.log("r' = " + r2);
             console.log("s' = " + s2);
 
@@ -686,13 +704,13 @@ let myp5User = new p5(sketch1 => {
             intercr = selectID[ind];
             intercs = selectID[1 - ind];
 
-            n1.html("Node i = " + edge0[0].toString(10));
-            n2.html("Node j = " + edge0[1].toString(10));
+            n1.html("Node i = " + selectID[0].toString(10));
+            n2.html("Node j = " + selectID[1].toString(10));
 
 
             forced_wellDef(randomIndex);
-            let otherNode = edge0[0];
-            while(otherNode == edge0[0] || otherNode == edge0[1]){
+            let otherNode = selectID[0];
+            while(otherNode == selectID[0] || otherNode == selectID[1]){
                 otherNode = getRandomInt(0,cells.length-1);
             }
             let luck = getRandomInt(0, 6);
@@ -700,7 +718,7 @@ let myp5User = new p5(sketch1 => {
                 wjPos.html('-');
                 wjppPos.html('-');
                 // node i is intersected
-                n3.html("Node i' = " + edge0[0].toString(10));
+                n3.html("Node i' = " + selectID[0].toString(10));
                 n4.html("Node j' = " + otherNode.toString(10));
                 wiPos.html(wi);
                 wippPos.html(wipp);
@@ -711,14 +729,14 @@ let myp5User = new p5(sketch1 => {
                 wippPos.html('-');
                 // node j is intersected
                 n3.html("Node i' = " + otherNode.toString(10));
-                n4.html("Node j' = " + edge0[1].toString(10));
+                n4.html("Node j' = " + selectID[1].toString(10));
                 wjPos.html(wj);
                 wjppPos.html(wjpp);
                 console.log("CASE: Node j intersected");
             } else {
                 consistency(randomIndex);
-                n3.html("Node i' = " + edge0[0].toString(10));
-                n4.html("Node j' = " + edge0[1].toString(10));
+                n3.html("Node i' = " + selectID[0].toString(10));
+                n4.html("Node j' = " + selectID[1].toString(10));
                 wiPos.html(wi);
                 wippPos.html(wipp);
 
@@ -728,164 +746,6 @@ let myp5User = new p5(sketch1 => {
             }
             selectID = [];
     };
-
-    /*
-    Function called when dishonest_commit button clicked
-     */
-    let dishonest_commit_update = () => {
-        console.log("COMMIT DISHONEST CASE");
-
-        // change the flags of the previously selected nodes
-        if (previous.length > 0) {
-            previous.forEach(cell => {
-                cell.flags.revealed = false;
-            });
-        }
-
-        // pick three-coloring of the graph
-        let randomIndex = getRandomInt(0, threeCol.length-1);
-        update3Col(randomIndex);
-
-        // user picks edge with r and s
-        r0 = node1_r.value();
-        s0 = node2_s.value();
-
-        // just for consistency
-        edge0 = [...selectID];
-
-        console.log("Node i: " + selectID[0]);
-        console.log("Node j: " + selectID[1]);
-
-        console.log("r = " + r0);
-        console.log("s = " + s0);
-
-        // pick random edge in graph
-
-        selected2 = getEdge();                          // cell objects
-        selectID2 = [selected2[0].id, selected2[1].id]; // cell id
-
-        console.log("Node i': " + selectID2[0]);
-        console.log("Node j': " + selectID2[1]);
-
-        // backend pick random r' and s'
-        r2 = getRandomInt(1,2);
-        s2 = getRandomInt(1,2);
-
-        console.log("r' = " + r2);
-        console.log("s' = " + s2);
-
-        // calculate commits
-        dishonest_commits();
-
-        // display commits
-        n1.html("Node i = " + edge0[0].toString(10));
-        n2.html("Node j = " + edge0[1].toString(10));
-        n3.html("Node i' = " + selectID2[0].toString(10));
-        n4.html("Node j' = " + selectID2[1].toString(10));
-
-        wiPos.html(wi);
-        wjPos.html(wj);
-        wippPos.html(wipp);
-        wjppPos.html(wjpp);
-
-        let i = edge0[0];
-        let j = edge0[1];
-        let ip = selectID2[0];
-        let jp = selectID2[1];
-
-        // Go through protocol and display color of nodes if it occurs
-
-        // check for edge verification, if passed, then display edge
-        // if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
-        //     console.log("Edge-Verification Test Passed");
-        //     // change the reveal flag to show the color
-        //     selected.forEach(cell => {
-        //         console.log(cell.revealCol);
-        //         cell.flags.revealed = true;
-        //         console.log(cell);
-        //         previous.push(cell);
-        //     });
-        // }
-        // else if((i == ip && j == jp) && (r0 != r2 || s0!= s2)){
-        //     if(r0 != r2){
-        //         console.log(selected[0].revealCol);
-        //         selected[0].flags.revealed = true;
-        //         console.log(selected[0]);
-        //         previous.push(selected[0])
-        //     }
-        //     if(s0 != s2){
-        //         console.log(selected[1].revealCol);
-        //         selected[1].flags.revealed = true;
-        //         console.log(selected[1]);
-        //         previous.push(selected[1])
-        //     }
-        // }
-        // else if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)){
-        //         console.log("Well-Definition Test Passed");
-        //
-        // } else{
-        //     console.log('hi')
-            if(i == ip && j==jp) {
-                if (r0 != r2) {
-                    console.log(selected[0].revealCol);
-                    selected[0].flags.revealed = true;
-                    console.log(selected[0]);
-                    previous.push(selected[0]);
-                }
-                if (s0 != s2) {
-                    console.log(selected[1].revealCol);
-                    selected[1].flags.revealed = true;
-                    console.log(selected[1]);
-                    previous.push(selected[1]);
-                }
-                if (r0 == r2) {
-                    if(wi == wipp){
-                        console.log('Well definition passed on node i and i')
-                    }
-                }
-                if (s0 == s2) {
-                   if(wj == wjpp){
-                       console.log('Well definition passed on node j and j')
-                   }
-                }
-            }
-            else{
-
-                if (i == ip && r0 != r2){
-                    console.log(selected[0].revealCol);
-                    selected[0].flags.revealed = true;
-                    console.log(selected[0]);
-                    previous.push(selected[0]);
-                }
-                else if (i == jp && r0 != s2){
-                    console.log(selected[0].revealCol);
-                    selected[0].flags.revealed = true;
-                    console.log(selected[0]);
-                    previous.push(selected[0]);
-                }
-                else if (j == jp && s0 != s2){
-                    console.log(selected[1].revealCol);
-                    selected[1].flags.revealed = true;
-                    console.log(selected[1]);
-                    previous.push(selected[1]);
-                }
-                else if (j == ip && s0 != r2){
-                    console.log(selected[1].revealCol);
-                    selected[1].flags.revealed = true;
-                    console.log(selected[1]);
-                    previous.push(selected[1]);
-                }
-                else{
-                    console.log("Edges are disjoint!");
-
-                }
-        }
-
-
-        selectID = [];
-
-    };
-
 
 
     /*
@@ -925,30 +785,19 @@ let myp5User = new p5(sketch1 => {
         return [cell1, cell2];
     }
 
-
-    /*
-    Commit value for the COMMIT DISHONEST case
-     */
-    function dishonest_commits() {
-        wi = getRandomInt(0, 2);
-        wj = getRandomInt(0, 2);
-        wipp = getRandomInt(0, 2);
-        wjpp = getRandomInt(0, 2);
-    }
-
     /*
     Commit values for COMMIT case
      */
     function commits(randomIndex) {
-        wi = checkModSum(b[edge0[0]] * r0 + threeCol[randomIndex][edge0[0]]);
-
-        wj = checkModSum(b[edge0[1]] * s0 + threeCol[randomIndex][edge0[1]]);
+        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
         wipp = checkModSum(b[selectID2[0]] * r2 + threeCol[randomIndex][selectID2[0]]);
         wjpp = checkModSum(b[selectID2[1]] * s2 + threeCol[randomIndex][selectID2[1]]);
-        console.log(b[edge0[0]], threeCol[randomIndex][edge0[0]])
-        console.log(b[edge0[1]], threeCol[randomIndex][edge0[1]])
-        console.log(b[selectID2[0]], threeCol[randomIndex][selectID2[0]])
-        console.log(b[selectID2[1]], threeCol[randomIndex][selectID2[1]])
+
+        console.log("b_i: " + b[selectID[0]], "c_i: " + threeCol[randomIndex][selectID[0]]);
+        console.log("b_j: " + b[selectID[1]], "c_j: " + threeCol[randomIndex][selectID[1]]);
+        console.log("b_ip: " + b[selectID2[0]], "c_ip: " + threeCol[randomIndex][selectID2[0]]);
+        console.log("b_jp: " + b[selectID2[1]], "c_jp: " + threeCol[randomIndex][selectID2[1]]);
     }
 
     /*
@@ -1013,14 +862,14 @@ let myp5User = new p5(sketch1 => {
     Calculation for each of the 3 cases
      */
     function consistency(randomIndex){
-        wi = checkModSum(b[edge0[0]] * r0 + threeCol[randomIndex][edge0[0]]);
-        wj = checkModSum(b[edge0[1]] * s0 + threeCol[randomIndex][edge0[1]]);
+        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
         wipp = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
         wjpp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
     }
     function forced_edgeV(randomIndex){
-        wi = checkModSum(b[edge0[0]] * r0 + threeCol[randomIndex][edge0[0]]);
-        wj = checkModSum(b[edge0[1]] * s0 + threeCol[randomIndex][edge0[1]]);
+        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
         wipp = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
         wjpp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
     }
@@ -1047,7 +896,8 @@ let myp5User = new p5(sketch1 => {
             let colIndex = threeCol[randomIndex][cell.id];
             let col = graphCol[colIndex];
             cell.revealCol = col;
-            console.log(colIndex, col);
+            console.log("Col num value: " + colIndex);
+            console.log("Col letter value: " + col);
         });
     }
 

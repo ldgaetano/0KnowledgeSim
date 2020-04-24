@@ -1,5 +1,5 @@
 class Cell {
-    revealCol;
+    revealCol = 255;
     constructor(id, x, y) {
         this.id = id;
         this.x = x;
@@ -34,6 +34,7 @@ class Cell {
             sketch.fill('purple');
         }
         if (this.flags.clicked) {
+            if (this.flags.revealed) {this.flags.revealed = false};
             sketch.fill('purple');
         }
         if (this.flags.revealed) {
