@@ -1,6 +1,6 @@
 # 0KnowledgeSim
 
-Web-based simuluation of the 2-prover and 2-verifier zero-knowledge protocol.
+Web-based simulation of the 2-prover and 2-verifier zero-knowledge protocol.
 
 ## Table of Contents
 
