@@ -4,9 +4,14 @@ Web-based simuluation of the 2-prover and 2-verifier zero-knowledge protocol.
 
 ## Table of Contents
 
-[Getting Started](##getting-started)
-[Installing](#
+[Getting Started](#getting-started)<br>
+[Installing](#installing)<br>
+[Built With](#built-with)<br>
+[Authors](#authors)<br>
+[License](#license)<br>
+[Acknowledgements](#acknowledgements)<br>
 
+<a name="getting-started"/>
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
