@@ -8,9 +8,10 @@ class Prover {
             x: this.x,
             y: this.y,
             diameter: 1,
+            // speed: 1
         }
-        this.speed = 1;
-        this.id = id
+        this.id = id;
+        this.speed = 1
     }
 
     update(sketch) {
@@ -84,3 +85,4 @@ class Prover {
         });
     }
 }
+
