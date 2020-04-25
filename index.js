@@ -1,9 +1,9 @@
 /*
     Defining global constants
  */
+let requestClicked = false;
 
-const diameter = 20;
-const speed = 1;
+const diameter = 30;
 const rate =  50
 
 // The provers
@@ -343,21 +343,30 @@ let myp5User = new p5(sketch1 => {
         request.style('background-color', sketch1.color(255));
         request.style('color: black');
         request.id('comButton');
-        request.mouseClicked(request_update);
+        request.mouseClicked(() => {
+            request_update();
+            requestClicked = true;
+        })
 
         // edge verification
         edge.position(request.x, request.y+request.height+20);
         edge.style('font-size', '20px');
         edge.style('background-color', sketch1.color(255));
         edge.style('color: black');
-        edge.mouseClicked(edge_update);
+        edge.mouseClicked(() => {
+            edge_update();
+            requestClicked = true;
+        });
 
         // well definition
         well.position(edge.x, edge.y + edge.height+20);
         well.style('font-size', '20px');
         well.style('background-color', sketch1.color(255));
         well.style('color: black');
-        well.mouseClicked(well_update);
+        well.mouseClicked(() => {
+            well_update();
+            requestClicked = true;
+        });
 
         // dishonest prover button
         dishonest.position(honest.x + 280, honest.y);
@@ -820,9 +829,9 @@ let myp5 = new p5(sketch => {
         canv.position(600, 280);
 
         resetSketch();
-        let reset = sketch.createButton("reset");
-        reset.position(600,250);
-        reset.mousePressed(resetSketch);
+        // let reset = sketch.createButton("reset");
+        // reset.position(600,250);
+        // reset.mousePressed(resetSketch);
 
         // let start = sketch.createButton("Start");
         // start.position(500, 70);
@@ -831,11 +840,11 @@ let myp5 = new p5(sketch => {
 
 
     let resetSketch = () => {
-        p1 = new Prover(100, 50);
-        p2 = new Prover(sketch.width - 50, sketch.height -50 );
+        p1 = new Prover('P1',100, 50);
+        p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
 
-        v1 = new Verifier(50, 50);
-        v2 = new Verifier(sketch.width - 100, sketch.height - 50);
+        v1 = new Verifier('V1', 50, 50);
+        v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
 
         provers = [p1, p2];
         verifiers = [v1, v2];
@@ -855,10 +864,59 @@ let myp5 = new p5(sketch => {
             }
         }
     }
+    let completeOne = () => {
+        for (let i = 0; i < provers.length; i++){
+            if(provers[i].ring == null) continue;
+            let ring1 = provers[0].ring;
+            let ring2 = provers[1].ring;
+
+            let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
+            let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
+
+            if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 >= d2)){
+                verifiers[0].ring.diameter = 0;
+                provers[0].ring.diameter = 0;
+                verifiers[1].ring.diameter = 0;
+                provers[1].ring.diameter = 0;
+                requestClicked = false;
+                if(d1 > d2){
+                    verifiers[1].speed = 1;
+                    provers[1].speed = 1;
+                }
+                else if(d2 >d1){
+                    verifiers[0].speed = 1;
+                    provers[0].speed = 1;
+                }
+            }
+            if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 < d2)){
+                verifiers[0].speed = 0;
+                provers[0].speed = 0;
+            }
+            if((ring2.diameter / 2 >= d2) && (ring1.diameter /2 < d1)){
+                verifiers[1].speed = 0;
+                provers[1].speed = 0;
+            }
+
+        }
+    }
     let checkIfTouching = () => {
         for (let i = 0; i < verifiers.length; ++i) {
             if (verifiers[i].rings.length == 0) continue;
             let ring = verifiers[i].rings[0];
+            for (let j = 0; j < verifiers.length; ++j) {
+                if (i == j) continue;
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
+                if (ring.diameter / 2 >= d) {
+                    sketch.noLoop();
+                    return;
+                }
+            }
+        }
+    }
+    let CIT = () => {
+        for (let i = 0; i < verifiers.length; ++i) {
+            if (verifiers[i].ring == null) continue;
+            let ring = verifiers[i].ring;
             for (let j = 0; j < verifiers.length; ++j) {
                 if (i == j) continue;
                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
@@ -886,6 +944,24 @@ let myp5 = new p5(sketch => {
 
         }
     }
+    let commitOne = () => {
+        // if (verifiers[0].ring == null){
+
+        let ring1 = verifiers[0].ring;
+        let ring2 = verifiers[1].ring;
+        let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
+        let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
+
+        if (ring1.diameter / 2 >= d1){
+            provers[0].updateOneRing();
+            provers[0].renderOneRing(sketch);
+            // set1.add(provers[i])
+        }
+        if (ring2.diameter / 2 >= d2){
+            provers[1].updateOneRing();
+            provers[1].renderOneRing(sketch);
+        }
+    }
     sketch.draw = () => {
         sketch.background(220);
         verifiers.forEach((e) => {
@@ -906,7 +982,39 @@ let myp5 = new p5(sketch => {
         });
         complete();
         checkIfTouching();
+        if (requestClicked) {
+            verifiers.forEach((e) => {
+                if(e.ring != null) {
+                    e.updateOneRing()
+                }
+                else{
+                    e.ring = {
+                        x: this.x,
+                        y: this.y,
+                        diameter: 1,
+                    };
+                    e.updateOneRing()
+                }
+            });
+            verifiers.forEach((e) => {
+                if(e.ring != null) {
+                    e.renderOneRing(sketch)
+                }
+                else{
+                    e.ring = {
+                        x: this.x,
+                        y: this.y,
+                        diameter: 1,
+                    };
+                    e.renderOneRing(sketch)
+                }
+            });
+            commitOne();
+            completeOne();
+            CIT();
+            // Prover.updateAll(sketch, provers, entitySelectedIndex);
 
+        }
     };
 
 

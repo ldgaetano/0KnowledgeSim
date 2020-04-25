@@ -1,9 +1,16 @@
 class Verifier {
-    constructor(x, y) {
+    constructor(id, x, y) {
         this.x = x;
         this.y = y;
         this.diameter = diameter;
         this.rings = [];
+        this.ring = {
+            x: this.x,
+            y: this.y,
+            diameter: 1,
+        };
+        this.speed = 1;
+        this.id = id
     }
 
     update(sketch) {
@@ -22,10 +29,16 @@ class Verifier {
         this.rings = this.rings.map(ring => ({
             x: ring.x,
             y: ring.y,
-            diameter: ring.diameter + speed,
-            lifespan: ring.lifespan,
+            diameter: ring.diameter + this.speed,
 
         }));
+    }
+    updateOneRing(){
+        this.ring = {
+            x: this.x,
+            y: this.y,
+            diameter: this.ring.diameter + this.speed,
+        };
     }
 
     render(sketch) {
@@ -33,6 +46,11 @@ class Verifier {
         sketch.stroke(0);
         sketch.fill(0);
         sketch.circle(this.x, this.y, diameter); // Draw entity
+
+        sketch.noStroke();
+        sketch.fill(255);
+        sketch.textSize(15);
+        sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
 
         sketch.noFill();
         sketch.stroke(0);
@@ -44,6 +62,13 @@ class Verifier {
             sketch.stroke(0);
         });
         sketch.pop();
+    }
+    renderOneRing(sketch){
+        sketch.noFill(0);
+        sketch.stroke(255,0,0);
+        sketch.circle(this.ring.x, this.ring.y, this.ring.diameter); // Draw ring
+
+
     }
 
     changeCol(ring) {
