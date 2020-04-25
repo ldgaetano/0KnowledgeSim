@@ -1,3 +1,6 @@
+console.log("--- ZERO KNOWLEDGE SIM ---");
+console.log("Written by Luca D'Angelo and Jenny Long");
+console.log("McGill University 2020 \n");
 /*
     Defining global constants
  */
@@ -33,6 +36,8 @@ Color value is based on index of graphCol array:
     2 = "blue"
  */
 let graphCol = ["red", "green", "blue"];
+
+console.log("COLOR CODE: 0 => RED, 1 => GREEN, 2 => BLUE");
 
 // 0 => user information
 // 2 => backend user information
@@ -82,13 +87,12 @@ function getRandomInt(min, max) {
 
 
 /*
-    Canvas that displays the graph
+   Canvas that displays the graph
  */
 let myp5Graph = new p5(sketch2 => {
 
 
     // Find the adjacency list
-
     for (let j=0; j< V.length; j++) {
         let neighbours = [];
         let ind = 0; // initialise an index at 0
@@ -103,6 +107,7 @@ let myp5Graph = new p5(sketch2 => {
         }
         AdjMatrix.push(neighbours);
     }
+    console.log("Adjacency List: \n");
     console.log(AdjMatrix);
 
     //Three coloring algorithm -- using backtracking
@@ -130,11 +135,14 @@ let myp5Graph = new p5(sketch2 => {
 
         color[node] = -1;
     }
+
     // calling the function
     coloring(0);
 
     // only need 6 of the 18 permutations
     threeCol = [threeCol[0], threeCol[1], threeCol[8], threeCol[9], threeCol[16], threeCol[17]];
+
+    console.log("Possible 3-colorings: \n");
     console.log(threeCol);
 
     sketch2.setup = () => {
@@ -256,20 +264,21 @@ let myp5Graph = new p5(sketch2 => {
                 if(selected.length < 2) {
                     selected.push(cell);
                     selectID.push(cell.id);
-                    console.log("Cells Selected Below: \n");
-                    console.log("--Node ID: ");
-                    console.log(selectID);
-                    console.log("--Node Object: ");
-                    console.log(selected);
                     cell.changeCol(selected);
                  } else{
                     selected = [];
                     selectID =[]
                     selected.push(cell);
                     selectID.push(cell.id);
-                    console.log("Cells Selected: \n");
-                    console.log(selectID);
                     cell.changeCol(selected);
+                }
+
+                if (selected.length == 2) {
+                    console.log("Cells Selected Below: \n");
+                    console.log("--Node ID: ");
+                    console.log(selectID);
+                    console.log("--Node Object: ");
+                    console.log(selected);
                 }
 
             } else {
@@ -298,13 +307,14 @@ let myp5User = new p5(sketch1 => {
         let canvUser = sketch1.createCanvas(1200, 100);
         canvUser.position(10,5);
 
-        // Instruction to user
+        // Instructions to user
         let instruction_1 = sketch1.createElement("h3", "Please choose 2 adjacent nodes with appropriate r and s values");
         instruction_1.position(20, 1);
 
         let instruction_2 = sketch1.createElement("h3", "Please choose nodes in ascending order");
         instruction_2.position(20, 25);
 
+        // Randomness options text
         let n1_text = sketch1.createElement("h4", "r_i");
         let n2_text = sketch1.createElement("h4", "r_j");
         n1_text.position(30, 60);
@@ -337,8 +347,15 @@ let myp5User = new p5(sketch1 => {
         honest.style('color: black');
         honest.mouseClicked(honest_update);
 
+        // dishonest prover button
+        dishonest.position(honest.x + 280, honest.y);
+        dishonest.style('font-size', '20px');
+        dishonest.style('background-color', sketch1.color(255));
+        dishonest.style('color: black');
+        dishonest.mouseClicked(dishonest_update);
+
         // request
-        request.position(honest.x, honest.y+honest.height+20);
+        request.position(210, honest.y+honest.height+20);
         request.style('font-size', '20px');
         request.style('background-color', sketch1.color(255));
         request.style('color: black');
@@ -349,7 +366,7 @@ let myp5User = new p5(sketch1 => {
         })
 
         // edge verification
-        edge.position(request.x, request.y+request.height+20);
+        edge.position(160, request.y + request.height+10);
         edge.style('font-size', '20px');
         edge.style('background-color', sketch1.color(255));
         edge.style('color: black');
@@ -359,7 +376,7 @@ let myp5User = new p5(sketch1 => {
         });
 
         // well definition
-        well.position(edge.x, edge.y + edge.height+20);
+        well.position(170, edge.y + edge.height+20);
         well.style('font-size', '20px');
         well.style('background-color', sketch1.color(255));
         well.style('color: black');
@@ -367,13 +384,6 @@ let myp5User = new p5(sketch1 => {
             well_update();
             requestClicked = true;
         });
-
-        // dishonest prover button
-        dishonest.position(honest.x + 280, honest.y);
-        dishonest.style('font-size', '20px');
-        dishonest.style('background-color', sketch1.color(255));
-        dishonest.style('color: black');
-        dishonest.mouseClicked(dishonest_update);
 
         // set up output table
         pr1 = sketch1.createElement('h4', "Prover 1");
@@ -391,7 +401,7 @@ let myp5User = new p5(sketch1 => {
         n3.position(900, 5);
         n4.position(1000, 5);
 
-        // commit values
+        // commit values for each node
         wiPos = sketch1.createElement('h4', init_com);
         wiPos.position(n1.x, pr1.y);
 
@@ -420,7 +430,7 @@ let myp5User = new p5(sketch1 => {
     };
 
     /*
-    Function called when commit button clicked
+    Function called when request button clicked
      */
     let request_update = () => {
 
@@ -452,7 +462,6 @@ let myp5User = new p5(sketch1 => {
         console.log("s = " + s0);
 
         // pick random edge in graph
-
         selected2 = getEdge();                          // cell objects
         selectID2 = [selected2[0].id, selected2[1].id]; // cell id
 
@@ -468,10 +477,11 @@ let myp5User = new p5(sketch1 => {
 
         // calculate commits
         commits(randomIndex);
-        console.log(wi)
-        console.log(wj)
-        console.log(wipp)
-        console.log(wjpp)
+        console.log("w_i: " + wi);
+        console.log("w_j: " + wj);
+        console.log("w_ip: " + wipp);
+        console.log("w_jp: " + wjpp);
+
         // display commits
         n1.html("Node i = " + selectID[0].toString(10));
         n2.html("Node j = " + selectID[1].toString(10));
@@ -590,18 +600,26 @@ let myp5User = new p5(sketch1 => {
         let randomIndex = getRandomInt(0, threeCol.length-1);
         update3Col(randomIndex);
 
+
+
         // randomness for user
         r0 = node1_r.value();
         s0 = node2_s.value();
 
+        console.log("Node i: " + selectID[0]);
+        console.log("Node j: " + selectID[1]);
         console.log("r = " + r0);
         console.log("s = " + s0);
 
+        // forcing randomness for backend user
         r2 = s0;
         s2 = r0;
 
+        console.log("Node i': " + selectID[0]);
+        console.log("Node j': " + selectID[1]);
         console.log("r' = " + r2);
         console.log("s' = " + s2);
+
         forced_edgeV(randomIndex);
         n1.html("Node i = " + selectID[0].toString(10));
         n2.html("Node j = " + selectID[1].toString(10));
@@ -613,17 +631,18 @@ let myp5User = new p5(sketch1 => {
         wippPos.html(wipp);
         wjppPos.html(wjpp);
 
+        console.log("w_i: " + wi);
+        console.log("w_j: " + wj);
+        console.log("w_ip: " + wipp);
+        console.log("w_jp: " + wjpp);
+
         // change the reveal flag to show the color
         selected.forEach(cell => {
-            console.log(cell.revealCol);
             cell.flags.revealed = true;
-            console.log(cell);
-            previous.push(cell);
         });
-        console.log("Previous:");
-        console.log(previous);
-
         selectID = [];
+
+        console.log("Edges are the same!");
 
     };
 
@@ -654,64 +673,76 @@ let myp5User = new p5(sketch1 => {
         r0 = node1_r.value();
         s0 = node2_s.value();
 
+
+        console.log("Node i: " + selectID[0]);
+        console.log("Node j: " + selectID[1]);
         console.log("r = " + r0);
         console.log("s = " + s0);
 
-        selectID = [...selectID];
+        // forcing the randomness to be the same
+        r2 = r0;
+        s2 = s0;
 
-            // forcing the randomness to be the same
-            r2 = r0;
-            s2 = s0;
+        console.log("r' = " + r2);
+        console.log("s' = " + s2);
 
-            console.log("r' = " + r2);
-            console.log("s' = " + s2);
+        // id of intersecting node
+        let ind = getRandomInt(0, 1);
+        intercr = selectID[ind];
+        intercs = selectID[1 - ind];
 
-            // id of intersecting node
-            let ind = getRandomInt(0, 1);
-            intercr = selectID[ind];
-            intercs = selectID[1 - ind];
-
-            n1.html("Node i = " + selectID[0].toString(10));
-            n2.html("Node j = " + selectID[1].toString(10));
+        n1.html("Node i = " + selectID[0].toString(10));
+        n2.html("Node j = " + selectID[1].toString(10));
 
 
-            forced_wellDef(randomIndex);
-            let otherNode = selectID[0];
-            while(otherNode == selectID[0] || otherNode == selectID[1]){
-                otherNode = getRandomInt(0,cells.length-1);
-            }
-            let luck = getRandomInt(0, 6);
-            if (luck == 0) {
-                wjPos.html('-');
-                wjppPos.html('-');
-                // node i is intersected
-                n3.html("Node i' = " + selectID[0].toString(10));
-                n4.html("Node j' = " + otherNode.toString(10));
-                wiPos.html(wi);
-                wippPos.html(wipp);
-                console.log("CASE: Node i intersected");
-            }
-            else if (luck == 1) {
-                wiPos.html('-');
-                wippPos.html('-');
-                // node j is intersected
-                n3.html("Node i' = " + otherNode.toString(10));
-                n4.html("Node j' = " + selectID[1].toString(10));
-                wjPos.html(wj);
-                wjppPos.html(wjpp);
-                console.log("CASE: Node j intersected");
-            } else {
-                consistency(randomIndex);
-                n3.html("Node i' = " + selectID[0].toString(10));
-                n4.html("Node j' = " + selectID[1].toString(10));
-                wiPos.html(wi);
-                wippPos.html(wipp);
-
-                wjPos.html(wj);
-                wjppPos.html(wjpp);
-                console.log("CASE: Consistency - same edge");
-            }
-            selectID = [];
+        forced_wellDef(randomIndex);
+        let otherNode = selectID[0];
+        while(otherNode == selectID[0] || otherNode == selectID[1]){
+            otherNode = getRandomInt(0,cells.length-1);
+        }
+        let luck = getRandomInt(0, 6);
+        if (luck == 0) {
+            wjPos.html('-');
+            wjppPos.html('-');
+            // node i is intersected
+            n3.html("Node i' = " + selectID[0].toString(10));
+            n4.html("Node j' = " + otherNode.toString(10));
+            console.log("Node i': " + selectID[0]);
+            console.log("Node j': " + otherNode);
+            wiPos.html("w_i: " + wi);
+            wippPos.html("w_ip: " + wipp);
+            console.log("CASE: Node i intersected");
+        }
+        else if (luck == 1) {
+            wiPos.html('-');
+            wippPos.html('-');
+            // node j is intersected
+            n3.html("Node i' = " + otherNode.toString(10));
+            n4.html("Node j' = " + selectID[1].toString(10));
+            console.log("Node i': " + otherNode);
+            console.log("Node j': " + selectID[1]);
+            console.log("w_j: " + wj);
+            console.log("w_jp: " + wjpp);
+            wjPos.html(wj);
+            wjppPos.html(wjpp);
+            console.log("CASE: Node j intersected");
+        } else {
+            consistency(randomIndex);
+            n3.html("Node i' = " + selectID[0].toString(10));
+            n4.html("Node j' = " + selectID[1].toString(10));
+            console.log("Node i': " + selectID[0]);
+            console.log("Node j': " + selectID[1]);
+            console.log("w_i: " + wi);
+            console.log("w_ip: " + wipp);
+            console.log("w_j: " + wj);
+            console.log("w_jp: " + wjpp);
+            wiPos.html(wi);
+            wippPos.html(wipp);
+            wjPos.html(wj);
+            wjppPos.html(wjpp);
+            console.log("CASE: Consistency - same edge");
+        }
+        selectID = [];
     };
 
 
@@ -720,11 +751,12 @@ let myp5User = new p5(sketch1 => {
      */
     let dishonest_update = () => {
         // add edge
-            // check if edge exists - if not, add the edge
+        // check if edge exists - if not, add the edge
         if (connections.length != 21) {
             c21 = new Connection(cell_1, cell_4);
             connections.push(c21);
         }
+        console.log("DISHONEST PROVER CASE");
     };
 
     /*
@@ -734,6 +766,7 @@ let myp5User = new p5(sketch1 => {
         if (connections.length == 21) {
             connections.pop(); // pop off c21 if it exists
         }
+        console.log("HONEST PROVER CASE");
     };
 
     /*
@@ -806,8 +839,6 @@ let myp5User = new p5(sketch1 => {
             let colIndex = threeCol[randomIndex][cell.id];
             let col = graphCol[colIndex];
             cell.revealCol = col;
-            console.log("Col num value: " + colIndex);
-            console.log("Col letter value: " + col);
         });
     }
 

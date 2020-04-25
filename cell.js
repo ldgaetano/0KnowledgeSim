@@ -54,10 +54,4 @@ class Cell {
         });
     }
 
-    // clicked(x, y, sketch){
-    //     if (isInside(x,y,sketch)) {
-    //         sketch.fill('purple');
-    //     }
-    // }
-
 }
