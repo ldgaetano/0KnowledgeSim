@@ -5,7 +5,6 @@ Web-based simuluation of the 2-prover and 2-verifier zero-knowledge protocol.
 ## Table of Contents
 
 [Getting Started](#getting-started)<br>
-[Installing](#installing)<br>
 [Built With](#built-with)<br>
 [Authors](#authors)<br>
 [License](#license)<br>
@@ -13,7 +12,7 @@ Web-based simuluation of the 2-prover and 2-verifier zero-knowledge protocol.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+A live version of the simulation can be viewed at the following link: [0KnowledgeSim](https://lucagdangelo.github.io./0KnowledgeSim)
 
 ### Installing
 
