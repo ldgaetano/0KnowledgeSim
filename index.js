@@ -858,19 +858,6 @@ let myp5 = new p5(sketch => {
     sketch.setup = () => {
         let canv = sketch.createCanvas(500, 500);
         canv.position(600, 280);
-
-        resetSketch();
-        // let reset = sketch.createButton("reset");
-        // reset.position(600,250);
-        // reset.mousePressed(resetSketch);
-
-        // let start = sketch.createButton("Start");
-        // start.position(500, 70);
-        // start.mousePressed(sketch.draw);
-    }
-
-
-    let resetSketch = () => {
         p1 = new Prover('P1',100, 50);
         p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
 
@@ -879,7 +866,36 @@ let myp5 = new p5(sketch => {
 
         provers = [p1, p2];
         verifiers = [v1, v2];
+
+        // In case we want a reset button
+        let reset = sketch.createButton('Reset');
+        reset.position(600 + canv.width +20, 280);
+        // reset.style('font-size', '20px');
+        // reset.style('background-color', sketch.color(255));
+        // reset.style('color: black');
+        reset.mouseClicked(resetSketch);
     }
+
+    // code for resetting the simulation
+    let resetSketch = () => {
+        p1 = new Prover('P1',100, 50);
+        p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
+        set = new Set();
+        p1.rings = [];
+        p1.rings = [];
+
+        v1 = new Verifier('V1', 50, 50);
+        v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
+        v1.rings = [];
+        v2.rings = [];
+
+        provers = [p1, p2];
+        verifiers = [v1, v2];
+
+        requestClicked = false
+    }
+
+    // function to check if a given pair of prover-verifier completed their communication
     let complete = () => {
         for (let i = 0; i < provers.length; i++){
             if(provers[i].rings.length == 0) continue;
@@ -895,6 +911,8 @@ let myp5 = new p5(sketch => {
             }
         }
     }
+
+    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
     let completeOne = () => {
         for (let i = 0; i < provers.length; i++){
             if(provers[i].ring == null) continue;
@@ -911,25 +929,27 @@ let myp5 = new p5(sketch => {
                 provers[1].ring.diameter = 0;
                 requestClicked = false;
                 if(d1 > d2){
-                    verifiers[1].speed = 1;
-                    provers[1].speed = 1;
+                    verifiers[1].ring.speed = 1;
+                    provers[1].ring.speed = 1;
                 }
                 else if(d2 >d1){
-                    verifiers[0].speed = 1;
-                    provers[0].speed = 1;
+                    verifiers[0].ring.speed = 1;
+                    provers[0].ring.speed = 1;
                 }
             }
             if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 < d2)){
-                verifiers[0].speed = 0;
-                provers[0].speed = 0;
+                verifiers[0].ring.speed = 0;
+                provers[0].ring.speed = 0;
             }
             if((ring2.diameter / 2 >= d2) && (ring1.diameter /2 < d1)){
-                verifiers[1].speed = 0;
-                provers[1].speed = 0;
+                verifiers[1].ring.speed = 0;
+                provers[1].ring.speed = 0;
             }
 
         }
     }
+
+    // function to check if V1's info reaches V2 before P1's commit returns back to V1
     let checkIfTouching = () => {
         for (let i = 0; i < verifiers.length; ++i) {
             if (verifiers[i].rings.length == 0) continue;
@@ -944,6 +964,8 @@ let myp5 = new p5(sketch => {
             }
         }
     }
+
+    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
     let CIT = () => {
         for (let i = 0; i < verifiers.length; ++i) {
             if (verifiers[i].ring == null) continue;
@@ -958,14 +980,16 @@ let myp5 = new p5(sketch => {
             }
         }
     }
-    let set = new Set();
 
+
+    let set = new Set();
+    // function that creates condition for the prover's to commit
     let commit = () => {
         for (let i  = 0; i < verifiers.length; i++){
             if (verifiers[i].rings.length == 0) continue;
             for (let j = 0; j < verifiers[i].rings.length; j++){
                 let ring = verifiers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter * 2;
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter /2;
                 if (ring.diameter / 2 >= d){
                     // provers[i].update(sketch);
                     // provers[i].render_ring(sketch);
@@ -975,6 +999,8 @@ let myp5 = new p5(sketch => {
 
         }
     }
+
+    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
     let commitOne = () => {
         // if (verifiers[0].ring == null){
 
@@ -1013,6 +1039,7 @@ let myp5 = new p5(sketch => {
         });
         complete();
         checkIfTouching();
+        // If the request or test button are clicked, than we draw the one ring
         if (requestClicked) {
             verifiers.forEach((e) => {
                 if(e.ring != null) {
@@ -1023,6 +1050,7 @@ let myp5 = new p5(sketch => {
                         x: this.x,
                         y: this.y,
                         diameter: 1,
+                        speed:1
                     };
                     e.updateOneRing()
                 }
@@ -1036,6 +1064,7 @@ let myp5 = new p5(sketch => {
                         x: this.x,
                         y: this.y,
                         diameter: 1,
+                        speed:1
                     };
                     e.renderOneRing(sketch)
                 }
