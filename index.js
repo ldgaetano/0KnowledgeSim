@@ -18,8 +18,21 @@ let entitySelectedIndex = -1;
 let provers;
 let verifiers;
 
-// The graph cells
+// The valid graph colorings
 let threeCol = [];
+
+// The graph
+let V = [0,1,2,3,4,5,6,7,8,9,10,11];
+let E = [[0,6], [0,7], [7,6], [7,1], [7,8], [1,8], [1,4], [8,2], [8,9], [2,9], [2,5], [9,10], [9,3], [3,10], [10,11], [10,4], [4,11], [11,5], [11,6], [5,6]];
+let AdjMatrix = [];
+
+/*
+Color value is based on index of graphCol array:
+    0 = "red"
+    1 = "green"
+    2 = "blue"
+ */
+let graphCol = ["red", "green", "blue"];
 
 // 0 => user information
 // 2 => backend user information
@@ -33,7 +46,6 @@ let selectID2 = [];
 let intercr, intercs;
 let wi, wj, wipp, wjpp;
 let wiPos, wjPos, wippPos, wjppPos;
-let tempCol = null;
 
 // Arrays where nodes and edges are stored for the 'displayed' graph
 let cells = [];
@@ -55,13 +67,7 @@ let pr1, pr2, n1, n2, n3, n4;
 let init_com = "-";
 let node1_r;
 let node2_s;
-/*
-Color value is based on index of graphCol array:
-    0 = "red"
-    1 = "green"
-    2 = "blue"
- */
-let graphCol = ["red", "green", "blue"];
+
 
 
 /*
@@ -82,10 +88,6 @@ let myp5Graph = new p5(sketch2 => {
 
 
     // Find the adjacency list
-    let V = [0,1,2,3,4,5,6,7,8,9,10,11];
-    let E = [[0,6],[0,7], [7,6], [7,1], [7,8], [1,8], [1,4],[8,2],[8,9], [2,9],[2,5], [9,10], [9,3],
-        [3,10], [10,11], [10,4],[4,11],[11,5],[11,6],[5,6]];
-    let AdjMatrix = [];
 
     for (let j=0; j< V.length; j++) {
         let neighbours = [];
@@ -269,10 +271,13 @@ let myp5Graph = new p5(sketch2 => {
                     console.log(selectID);
                     cell.changeCol(selected);
                 }
+
             } else {
                 cell.flags.clicked = false;
             };
         });
+
+
 
     };
 
@@ -475,53 +480,6 @@ let myp5User = new p5(sketch1 => {
         let jp = selectID2[1];
 
         // Go through protocol and display color of nodes if it occurs
-
-        // check for edge verification, if passed, then display edge
-        // if (edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp)) {
-        //     console.log("Edge-Verification Test Passed");
-        //     // change the reveal flag to show the color
-        //     selected.forEach(cell => {
-        //         console.log(cell.revealCol);
-        //         cell.flags.revealed = true;
-        //         console.log(cell);
-        //         previous.push(cell);
-        //     });
-        // } else if (well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) != false){
-        //     console.log('bye')
-        //     console.log("Well-Definition Test Passed");
-        //
-        // } else{
-        //     console.log('hi')
-        //     if (i == ip && r0 != r2){
-        //         console.log(selected[0].revealCol);
-        //         selected[0].flags.revealed = true;
-        //         console.log(selected[0]);
-        //         previous.push(selected[0]);
-        //     }
-        //     else if (i == jp && r0 != s2){
-        //         console.log(selected[0].revealCol);
-        //         selected[0].flags.revealed = true;
-        //         console.log(selected[0]);
-        //         previous.push(selected[0]);
-        //     }
-        //     else if (j == jp && s0 != s2){
-        //         console.log(selected[1].revealCol);
-        //         selected[1].flags.revealed = true;
-        //         console.log(selected[1]);
-        //         previous.push(selected[1]);
-        //     }
-        //     else if (j == ip && s0 != r2){
-        //         console.log(selected[1].revealCol);
-        //         selected[1].flags.revealed = true;
-        //         console.log(selected[1]);
-        //         previous.push(selected[1]);
-        //     }
-        //     else{
-        //         console.log('here')
-        //         console.log("Edges are disjoint!");
-        //
-        //     }
-        // }
         if(i == ip && j==jp) {
             if (r0 != r2) {
                 console.log(selected[0].revealCol);
@@ -801,64 +759,6 @@ let myp5User = new p5(sketch1 => {
     }
 
     /*
-    Check the Edge-Verification Test
-     */
-    // function edge_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
-    //     if ((i == ip) && (j == jp)) {
-    //         if ((r0 != r2) && (s0 != s2)) {
-    //             if ((wi + wipp) != (wj + wjpp)) {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    /*
-    Check the Well-Definition Test
-     */
-    // function well_test(i, j, ip, jp, r0, s0, r2, s2, wi, wipp, wj, wjpp) {
-    //     // CASE 1: Same edge
-    //     if ((i == ip) && (j == jp)) {
-    //         if ((r0 == r2) && (s0 == s2)) {
-    //             if ((wi == wipp) && (wj == wjpp)){
-    //                 console.log("Same edge intersects");
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //
-    //     // CASE 2: Node i intersects
-    //     if (i == ip) {
-    //         if (r0 == r2) {
-    //             if (wi == wipp) {
-    //                 console.log("Node i and i' intersect");
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //
-    //     // CASE 3: Node j intersects
-    //     if (j == jp) {
-    //         if (s0 == s2) {
-    //             if (wj == wjpp) {
-    //                 console.log("Node j and j' intersect");
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     if(i == jp && r0 == s2 && wi == wjpp){
-    //         console.log("Node i and j' intersect");
-    //         return true;
-    //     }
-    //     if (j == ip && s0 == r2 && wj == wipp){
-    //         console.log("Node j and i' intersect");
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
-    /*
     Calculation for each of the 3 cases
      */
     function consistency(randomIndex){
@@ -882,6 +782,7 @@ let myp5User = new p5(sketch1 => {
         wj = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
         wjpp = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
     }
+
     sketch1.draw = () => {
         sketch1.background(255);
 
@@ -912,7 +813,7 @@ let myp5User = new p5(sketch1 => {
 
 }, "user-canvas");
 
-/* Information Propagation Simulation*/
+/* Information Propagation Simulation */
 let myp5 = new p5(sketch => {
     sketch.setup = () => {
         let canv = sketch.createCanvas(500, 500);
