@@ -13,7 +13,7 @@ Web-based simulation of the 2-prover and 2-verifier zero-knowledge protocol.
 ## Getting Started
 
 * A live version of the simulation can be viewed at the following link: [0KnowledgeSim](https://lucagdangelo.github.io./0KnowledgeSim)
-* Detailed logs of the protocol as the simulation runs are outputted to the console in the Chrome Developer Tools
+* To get a better understanding of the protocol as the simulation runs,  detailed logs of the protocol are displayed to the console under the Chrome Developer Tools
 
 ## Built With
 
