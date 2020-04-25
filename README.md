@@ -14,24 +14,6 @@ Web-based simuluation of the 2-prover and 2-verifier zero-knowledge protocol.
 
 A live version of the simulation can be viewed at the following link: [0KnowledgeSim](https://lucagdangelo.github.io./0KnowledgeSim)
 
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
 ## Built With
 
 * [p5.js](https://p5js.org/) - The front-end web framework used
