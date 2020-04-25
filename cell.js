@@ -1,5 +1,6 @@
 class Cell {
     revealCol = 255;
+
     constructor(id, x, y) {
         this.id = id;
         this.x = x;
@@ -11,6 +12,7 @@ class Cell {
 
         };
         this.radius = 20;
+
     }
 
     render(sketch) {

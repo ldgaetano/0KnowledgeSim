@@ -588,7 +588,6 @@ let myp5User = new p5(sketch1 => {
         if (previous.length > 0) {
             previous.forEach(cell => {
                 cell.flags.revealed = false;
-                cell.flags.revealed = false;
                 cell.flags.clicked = false;
                 cell.flags.hover = false;
                 cell.revealCol = 255;
@@ -612,8 +611,14 @@ let myp5User = new p5(sketch1 => {
         console.log("s = " + s0);
 
         // forcing randomness for backend user
-        r2 = s0;
-        s2 = r0;
+        if(r0 == s0){
+            r2 = 3 - r0;
+            s2 = r2;
+        }
+        else {
+            r2 = s0;
+            s2 = r0;
+        }
 
         console.log("Node i': " + selectID[0]);
         console.log("Node j': " + selectID[1]);
@@ -639,6 +644,7 @@ let myp5User = new p5(sketch1 => {
         // change the reveal flag to show the color
         selected.forEach(cell => {
             cell.flags.revealed = true;
+            previous.push(cell);
         });
         selectID = [];
 
@@ -656,7 +662,6 @@ let myp5User = new p5(sketch1 => {
         // change the flags of the previously selected nodes
         if (previous.length > 0) {
             previous.forEach(cell => {
-                cell.flags.revealed = false;
                 cell.flags.revealed = false;
                 cell.flags.clicked = false;
                 cell.flags.hover = false;
