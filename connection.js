@@ -8,6 +8,10 @@ class Connection {
         };
     }
 
+    getConnectionIDs() {
+        return [this.cell1.id, this.cell2.id];
+    }
+
     render(sketch) {
         this.render_connection(sketch);
     }

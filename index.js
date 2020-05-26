@@ -68,7 +68,7 @@ let dishonest;
 let request;
 let edge;
 let well;
-let pr1, pr2, n1, n2, n3, n4;
+let pr1, pr2, n1, n2, n3, n4, r2_text, s2_text, result;
 let init_com = "-";
 let node1_r;
 let node2_s;
@@ -286,8 +286,6 @@ let myp5Graph = new p5(sketch2 => {
             };
         });
 
-
-
     };
 
     //Find the pre-agreed b value for each of the nodes
@@ -304,7 +302,7 @@ let myp5User = new p5(sketch1 => {
 
 
     sketch1.setup = () => {
-        let canvUser = sketch1.createCanvas(1200, 100);
+        let canvUser = sketch1.createCanvas(1200, 265);
         canvUser.position(10,5);
 
         // Instructions to user
@@ -315,8 +313,8 @@ let myp5User = new p5(sketch1 => {
         instruction_2.position(20, 25);
 
         // Randomness options text
-        let n1_text = sketch1.createElement("h4", "r_i");
-        let n2_text = sketch1.createElement("h4", "r_j");
+        let n1_text = sketch1.createElement("h4", "r");
+        let n2_text = sketch1.createElement("h4", "s");
         n1_text.position(30, 60);
         n2_text.position(120, 60);
 
@@ -324,7 +322,7 @@ let myp5User = new p5(sketch1 => {
         node1_r = sketch1.createSelect();
         node2_s = sketch1.createSelect();
 
-        node1_r.position(60, 80);
+        node1_r.position(45, 80);
         node2_s.position(node1_r.x+90, node1_r.y);
 
         node1_r.option('1');
@@ -396,10 +394,14 @@ let myp5User = new p5(sketch1 => {
         n2 = sketch1.createElement('h4', "Node j" );
         n3 = sketch1.createElement('h4', "Node i'");
         n4 = sketch1.createElement('h4', "Node j'");
+        r2_text = sketch1.createElement('h4', "r'");
+        s2_text = sketch1.createElement('h4', "s'");
         n1.position(700, 5);
         n2.position(800, 5);
         n3.position(900, 5);
         n4.position(1000, 5);
+        r2_text.position(1100, 5);
+        s2_text.position(1150, 5);
 
         // commit values for each node
         wiPos = sketch1.createElement('h4', init_com);
@@ -426,13 +428,14 @@ let myp5User = new p5(sketch1 => {
             wjppPos.html(init_com);
 
         }
-
     };
 
     /*
     Function called when request button clicked
      */
     let request_update = () => {
+
+        checkEdge(selectID);
 
         console.log("REQUEST");
 
@@ -487,6 +490,8 @@ let myp5User = new p5(sketch1 => {
         n2.html("Node j = " + selectID[1].toString(10));
         n3.html("Node i' = " + selectID2[0].toString(10));
         n4.html("Node j' = " + selectID2[1].toString(10));
+        r2_text.html("r' = " + r2);
+        s2_text.html("s' = " + s2);
 
         wiPos.html(wi);
         wjPos.html(wj);
@@ -582,6 +587,8 @@ let myp5User = new p5(sketch1 => {
      */
     let edge_update = () => {
 
+        checkEdge(selectID);
+
         console.log("TEST: Edge-Verification Test");
 
         // change the flags of the previously selected nodes
@@ -630,6 +637,8 @@ let myp5User = new p5(sketch1 => {
         n2.html("Node j = " + selectID[1].toString(10));
         n3.html("Node i' = " + selectID[0].toString(10));
         n4.html("Node j' = " + selectID[1].toString(10));
+        r2_text.html("r' = " + r2);
+        s2_text.html("s' = " + s2);
 
         wiPos.html(wi);
         wjPos.html(wj);
@@ -656,6 +665,8 @@ let myp5User = new p5(sketch1 => {
     Function called when well definition test button clicked
      */
     let well_update = () => {
+
+        checkEdge(selectID);
 
         console.log("TEST: Well-Definition Test");
 
@@ -690,6 +701,8 @@ let myp5User = new p5(sketch1 => {
 
         console.log("r' = " + r2);
         console.log("s' = " + s2);
+        r2_text.html("r' = " + r2);
+        s2_text.html("s' = " + s2);
 
         // id of intersecting node
         let ind = getRandomInt(0, 1);
@@ -831,7 +844,7 @@ let myp5User = new p5(sketch1 => {
     }
 
     sketch1.draw = () => {
-        sketch1.background(255);
+        sketch1.background(220);
 
     }
 
@@ -853,6 +866,44 @@ let myp5User = new p5(sketch1 => {
      */
     function checkModSum(sum) {
         return sum % 3;
+    }
+
+    /*
+    Check if edge exists
+     */
+    function checkEdge(edge) {
+        let counter = 0;
+        for(let i=0; i<E.length; i++) {
+            let e = E[i];
+            if (!arraysEqual(e, edge)) {
+                counter++;
+            }
+        }
+        if (counter == E.length) {
+            selected = [];
+            selectID = [];
+            alert("Pick valid edge!");
+        }
+    }
+
+    /*
+    Check if edge arrays are equal
+     */
+    function arraysEqual(a1, a2) {
+        // check length
+        if (a1.length !== a2.length) {
+            return false;
+        }
+
+        // check contents
+        for (let i = 0; i < a1.length; i++) {
+            if (a1[i] !== a2[i]) {
+                return false;
+            }
+        }
+
+        // otherwise equal
+        return true;
     }
 
 
