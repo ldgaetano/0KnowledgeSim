@@ -23,9 +23,10 @@ class Prover {
             });
         }
 
+    }
+    grow(){
         this.x = this.x;
         this.y = this.y;
-
 
         this.rings = this.rings.map(ring => ({
             x: ring.x,
@@ -45,33 +46,60 @@ class Prover {
         };
     }
 
-    render(sketch) {
+    renderP1(sketch) {
         sketch.push();
-        sketch.stroke('purple');
-        sketch.fill('purple');
+        sketch.stroke('yellow');
+        sketch.fill('yellow');
         sketch.circle(this.x, this.y, diameter); // Draw entity
 
         sketch.noStroke();
-        sketch.fill(255);
+        sketch.fill(0);
         sketch.textSize(15);
         sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
         sketch.pop();
     }
-    render_ring(sketch) {
+    renderP2(sketch) {
+        sketch.push();
+        sketch.stroke('white');
+        sketch.fill('white');
+        sketch.circle(this.x, this.y, diameter); // Draw entity
+
+        sketch.noStroke();
+        sketch.fill(0);
+        sketch.textSize(15);
+        sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
+        sketch.pop();
+    }
+    render_ringP1(sketch) {
         sketch.push();
         sketch.noFill();
-        sketch.stroke('purple');
+        sketch.stroke('yellow');
         this.rings.forEach(ring => {
             sketch.circle(ring.x, ring.y, ring.diameter);
         });
         sketch.pop();
     }
-    renderOneRing(sketch){
+    render_ringP2(sketch) {
         sketch.push();
         sketch.noFill();
-        sketch.stroke('green');
+        sketch.stroke('white');
+        this.rings.forEach(ring => {
+            sketch.circle(ring.x, ring.y, ring.diameter);
+        });
+        sketch.pop();
+    }
+    renderOneRingP1(sketch){
+        sketch.push();
+        sketch.noFill();
+        sketch.stroke('purple');
         sketch.circle(this.ring.x, this.ring.y, this.ring.diameter);
-
+        sketch.pop();
+    }
+    renderOneRingP2(sketch){
+        sketch.push();
+        sketch.noFill();
+        sketch.stroke('black');
+        sketch.circle(this.ring.x, this.ring.y, this.ring.diameter);
         sketch.pop();
     }
 
@@ -79,8 +107,8 @@ class Prover {
         entities.forEach((e, i) => {
             // e.update(sketch);
             if (i == selectedIndex) {
-                e.x = sketch.mouseX;
-                e.y = sketch.mouseY;
+                e.x = sketch.mouseX ;
+                e.y = sketch.mouseY ;
             }
         });
     }

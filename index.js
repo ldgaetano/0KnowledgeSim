@@ -958,7 +958,7 @@ let myp5 = new p5(sketch => {
             for (let j=0; j < provers[i].rings.length; j++){
                 // let ring = verifiers[i].rings[j];
                 let ringp = provers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter / 2;
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, ringp.x, ringp.y) - verifiers[i].diameter / 2;
                 if(ringp.diameter / 2 >= d){
                     verifiers[i].rings.shift();
                     provers[i].rings.shift();
@@ -1043,16 +1043,20 @@ let myp5 = new p5(sketch => {
     let commit = () => {
         for (let i  = 0; i < verifiers.length; i++){
             if (verifiers[i].rings.length == 0) continue;
-            for (let j = 0; j < verifiers[i].rings.length; j++){
+            for (let j = 0; j < verifiers[i].rings.length; j++) {
                 let ring = verifiers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter /2;
-                if (ring.diameter / 2 >= d){
-                    // provers[i].update(sketch);
-                    // provers[i].render_ring(sketch);
-                    set.add(provers[i])
+                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter / 2;
+                if (ring.diameter / 2 >= d) {
+                    provers[i].update(sketch);
+                    // provers[0].render_ringP1(sketch);
+                    // provers[1].render_ringP2(sketch);
+                    // set.add(provers[i])
+
                 }
             }
-
+            if (provers[i].rings.length != 0) {
+                provers[i].grow();
+            }
         }
     }
 
@@ -1080,19 +1084,32 @@ let myp5 = new p5(sketch => {
         verifiers.forEach((e) => {
             e.update(sketch)
         });
-        verifiers.forEach((e) => {
-            e.render(sketch)
-        });
-        Prover.updateAll(sketch, provers, entitySelectedIndex);
+        verifiers[0].renderV1(sketch)
+        verifiers[1].renderV2(sketch)
+        // verifiers.forEach((e) => {
+        //     e.render(sketch)
+        // });
 
-        provers.forEach((e) => {
-            e.render(sketch)
-        });
+        Prover.updateAll(sketch, provers, entitySelectedIndex);
+        provers[0].renderP1(sketch);
+        provers[1].renderP2(sketch);
+        // provers.forEach((e) => {
+        //     e.render(sketch)
+        // });
         commit();
-        set.forEach((e)=> {
-            e.update(sketch);
-            e.render_ring(sketch);
-        });
+        provers[0].render_ringP1(sketch);
+        provers[1].render_ringP2(sketch);
+        // set.forEach((e)=> {
+        //     e.update(sketch)
+        //     if (e == provers[0]){
+        //         e.render_ringP1(sketch)
+        //     }
+        //     else{
+        //         e.render_ringP2(sketch);
+        //     }
+        //     // e.update(sketch);
+        //     // e.render_ring(sketch);
+        // });
         complete();
         checkIfTouching();
         // If the request or test button are clicked, than we draw the one ring
@@ -1111,20 +1128,44 @@ let myp5 = new p5(sketch => {
                     e.updateOneRing()
                 }
             });
-            verifiers.forEach((e) => {
-                if(e.ring != null) {
-                    e.renderOneRing(sketch)
-                }
-                else{
-                    e.ring = {
-                        x: this.x,
-                        y: this.y,
-                        diameter: 1,
-                        speed:1
-                    };
-                    e.renderOneRing(sketch)
-                }
-            });
+            if (verifiers[0].ring != null){
+                verifiers[0].renderOneRingV1(sketch)
+            }
+            else{
+                verifiers[0].ring = {
+                    x: this.x,
+                    y: this.y,
+                    diameter:1,
+                    speed:1
+                };
+                verifiers.renderOneRingV1(sketch)
+            }
+            if (verifiers[1].ring != null){
+                verifiers[1].renderOneRingV2(sketch)
+            }
+            else{
+                verifiers[1].ring = {
+                    x: this.x,
+                    y: this.y,
+                    diameter:1,
+                    speed:1
+                };
+                verifiers.renderOneRingV2(sketch)
+            }
+            // verifiers.forEach((e) => {
+            //     if(e.ring != null) {
+            //         e.renderOneRing(sketch)
+            //     }
+            //     else{
+            //         e.ring = {
+            //             x: this.x,
+            //             y: this.y,
+            //             diameter: 1,
+            //             speed:1
+            //         };
+            //         e.renderOneRing(sketch)
+            //     }
+            // });
             commitOne();
             completeOne();
             CIT();

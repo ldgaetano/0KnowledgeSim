@@ -11,7 +11,7 @@ class Verifier {
             // speed:1
         };
         this.id = id;
-        this.speed = 1
+        this.speed = 1;
     }
 
     update(sketch) {
@@ -42,10 +42,10 @@ class Verifier {
         };
     }
 
-    render(sketch) {
+    renderV1(sketch) {
         sketch.push();
-        sketch.stroke(0);
-        sketch.fill(0);
+        sketch.stroke('blue');
+        sketch.fill('blue');
         sketch.circle(this.x, this.y, diameter); // Draw entity
 
         sketch.noStroke();
@@ -54,19 +54,45 @@ class Verifier {
         sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
 
         sketch.noFill();
-        sketch.stroke(0);
+        sketch.stroke('blue');
         this.rings.forEach(ring => {
-            if (ring.lifespan == false) {
-                sketch.stroke(220);
-            }
+            // if (ring.lifespan == false) {
+            //     sketch.stroke(220);
+            // }
             sketch.circle(ring.x, ring.y, ring.diameter); // Draw ring
-            sketch.stroke(0);
+            sketch.stroke('blue');
         });
         sketch.pop();
     }
-    renderOneRing(sketch){
+    renderV2(sketch) {
+        sketch.push();
+        sketch.stroke('green');
+        sketch.fill('green');
+        sketch.circle(this.x, this.y, diameter); // Draw entity
+
+        sketch.noStroke();
+        sketch.fill(255);
+        sketch.textSize(15);
+        sketch.text(this.id, this.x - (sketch.textWidth(this.id) / 2), this.y + ((sketch.textAscent() + sketch.textDescent()) / 4));
+
+        sketch.noFill();
+        sketch.stroke('green');
+        this.rings.forEach(ring => {
+            sketch.circle(ring.x, ring.y, ring.diameter); // Draw ring
+            sketch.stroke('green');
+        });
+        sketch.pop();
+    }
+    renderOneRingV1(sketch){
+        sketch.noFill();
+        sketch.stroke('orange');
+        sketch.circle(this.ring.x, this.ring.y, this.ring.diameter); // Draw ring
+
+
+    }
+    renderOneRingV2(sketch){
         sketch.noFill(0);
-        sketch.stroke(255,0,0);
+        sketch.stroke('red');
         sketch.circle(this.ring.x, this.ring.y, this.ring.diameter); // Draw ring
 
 
