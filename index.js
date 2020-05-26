@@ -1071,14 +1071,14 @@ let myp5 = new p5(sketch => {
 
         if (ring1.diameter / 2 >= d1){
             provers[0].updateOneRing();
-            provers[0].renderOneRing(sketch);
-            // set1.add(provers[i])
+            provers[0].renderOneRingP1(sketch);
         }
         if (ring2.diameter / 2 >= d2){
             provers[1].updateOneRing();
-            provers[1].renderOneRing(sketch);
+            provers[1].renderOneRingP2(sketch);
         }
     }
+
     sketch.draw = () => {
         sketch.background(220);
         verifiers.forEach((e) => {
