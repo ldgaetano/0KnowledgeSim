@@ -27,6 +27,7 @@ let threeCol = [];
 // The graph
 let V = [0,1,2,3,4,5,6,7,8,9,10,11];
 let E = [[0,6], [0,7], [7,6], [7,1], [7,8], [1,8], [1,4], [8,2], [8,9], [2,9], [2,5], [9,10], [9,3], [3,10], [10,11], [10,4], [4,11], [11,5], [11,6], [5,6]];
+let E_Ascending = [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]];
 let AdjMatrix = [];
 
 /*
@@ -873,16 +874,16 @@ let myp5User = new p5(sketch1 => {
      */
     function checkEdge(edge) {
         let counter = 0;
-        for(let i=0; i<E.length; i++) {
-            let e = E[i];
+        for(let i=0; i<E_Ascending.length; i++) {
+            let e = E_Ascending[i];
             if (!arraysEqual(e, edge)) {
                 counter++;
             }
         }
-        if (counter == E.length) {
+        if (counter == E_Ascending.length) {
             selected = [];
             selectID = [];
-            alert("Pick valid edge!");
+            alert("Pick a valid edge!");
         }
     }
 
