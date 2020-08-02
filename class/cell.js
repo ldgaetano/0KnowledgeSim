@@ -80,13 +80,6 @@ class Cell {
     }
 
     /**
-     * Change click status of Cell instance when clicked.
-     */
-    cellSelected(){
-        this.flags.clicked = true;
-    }
-
-    /**
      * Change the reveal color of the Cell instance.
      * @param {number} color
      */

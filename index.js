@@ -61,53 +61,24 @@ Color value is based on index of graphCol array:
     Index 1 = "green"
     Index 2 = "blue"
  */
+
 let graphCol = {"red": 0, "green": 1, "blue": 2};
 graphCol[0]
 
-
 console.log("COLOR CODE: 0 => RED, 1 => GREEN, 2 => BLUE");
 
-// Simulation Parameters
-let simulation_params = {
-    requests: {
-        user_request: {
-            user_selected_edge: [],
-            user_selected_nodes: [],
-            user_r: null,
-            user_s: null,
-            previous_user_selected_edge: [],
-        },
-        automated_request: {
-            auto_selected_edge: [],
-            auto_selected_edge_nodes: [],
-            auto_r: null,
-            auto_s: null,
-
-        }
-    },
-    commits: {
-        user_commit: {
-            user_node_i: null,
-            user_node_j: null
-        },
-        automated_commit: {
-            auto_node_ip: null,
-            auto_node_jp: null
-        }
-    }
-
+{
+    let previous_edge = [];
+    let user_selected_edge = [];
+    let selected_edge_nodes = [];
+    let r_user, r_auto, s_user, s_auto;
+    let b = [];
+    let auto_selected_edge = [];
+    let auto_selected_edge_nodes = [];
+    let intercection_r, intercection_s;
+    let com_i, com_j, com_ip, com_jp;
+    let com_iText, com_jText, com_ipText, com_jpText; //
 }
-
-let previous_edge = [];
-let user_selected_edge = [];
-let selected_edge_nodes = [];
-let r_user, r_auto, s_user, s_auto;
-let b = [];
-let auto_selected_edge = [];
-let auto_selected_edge_nodes = [];
-let intercection_r, intercection_s;
-let com_i, com_j, com_ip, com_jp;
-let com_iText, com_jText, com_ipText, com_jpText; //
 
 // Buttons
 let buttons = {
@@ -149,14 +120,10 @@ let text = {
         init: "-"
     },
     commits: {
-        user_commit: {
-            node_i: null,
-            node_j: null
-        },
-        automated_commit: {
-            node_ip: null,
-            node_jp: null
-        }
+        node_i: null,
+        node_j: null,
+        node_ip: null,
+        node_jp: null
     }
 };
 
@@ -167,6 +134,7 @@ let options = new p5(s1 => {
 
 
     s1.setup = () => {
+        //console.log(text.table.init);
         let canvUser = s1.createCanvas(1200, 300);
 
         // Instructions to user
@@ -195,9 +163,9 @@ let options = new p5(s1 => {
             buttons.user_select.node_j_s.position(buttons.user_select.node_i_r.x + 90, buttons.user_select.node_i_r.y);
 
             buttons.user_select.node_i_r.option('1');
-            buttons.user_select.node_j_s.option('2');
+            buttons.user_select.node_i_r.option('2');
 
-            buttons.user_select.node_i_r.option('1');
+            buttons.user_select.node_j_s.option('1');
             buttons.user_select.node_j_s.option('2');
         }
 
@@ -229,11 +197,13 @@ let options = new p5(s1 => {
             buttons.tests.request.style('background-color', s1.color(255));
             buttons.tests.request.style('color: black');
             buttons.tests.request.id('comButton');
-            buttons.tests.request.mouseClicked(requestButtonClicked());
             buttons.tests.request.mouseClicked(() => {
-                request_update();
-                requestClicked = true;
-            })
+                requestButtonClicked();
+            });
+            // buttons.tests.request.mouseClicked(() => {
+            //     request_update();
+            //     requestClicked = true;
+            // })
         }
 
         // Edge verification button
@@ -270,7 +240,7 @@ let options = new p5(s1 => {
             text.table.prover_2.position(600, text.table.prover_1.y + text.table.prover_1.height * 2);
         }
 
-        // Node names
+        // Output table node names
         {
             text.table.node_i = s1.createElement('h4', "Node i");
             text.table.node_j = s1.createElement('h4', "Node j");
@@ -286,32 +256,32 @@ let options = new p5(s1 => {
             text.table.node_jp_s.position(1150, 5);
         }
 
-        // Commit values for each node
+        // Output table commit values for each node
         {
-            text.commits.user_commit.node_i = s1.createElement('h4', text.table.init);
-            com_iText.position(n1.x, pr1.y);
+            text.commits.node_i = s1.createElement('h4', text.table.init);
+            text.commits.node_i.position(text.table.node_i.x, text.table.prover_1.y);
 
-            com_jText = s1.createElement('h4', init_com);
-            com_jText.position(n2.x, pr1.y);
+            text.commits.node_j = s1.createElement('h4', text.table.init);
+            text.commits.node_j.position(text.table.node_j.x, text.table.prover_1.y);
 
-            com_ipText = s1.createElement('h4', init_com);
-            com_ipText.position(n3.x, pr2.y);
+            text.commits.node_ip = s1.createElement('h4', text.table.init);
+            text.commits.node_ip.position(text.table.node_ip.x, text.table.prover_2.y);
 
-            com_jpText = s1.createElement('h4', init_com);
-            com_jpText.position(n4.x, pr2.y);
+            text.commits.node_jp = s1.createElement('h4', text.table.init);
+            text.commits.node_jp.position(text.table.node_jp.x, text.table.prover_2.y);
 
-            if (simulation_params.requests.user_request.user_selected_nodes[0] == null || simulation_params.requests.user_request.user_selected_nodes[1] == null) {
-                n1.html("Node i");
-                n2.html("Node j");
-                n3.html("Node i'");
-                n4.html("Node j'");
-
-                com_iText.html(init_com);
-                com_jText.html(init_com);
-                com_ipText.html(init_com);
-                com_jpText.html(init_com);
-
-            }
+            // if (simulation_params.requests.user_request.user_selected_nodes[0] == null || simulation_params.requests.user_request.user_selected_nodes[1] == null) {
+            //     n1.html("Node i");
+            //     n2.html("Node j");
+            //     n3.html("Node i'");
+            //     n4.html("Node j'");
+            //
+            //     com_iText.html(init_com);
+            //     com_jText.html(init_com);
+            //     com_ipText.html(init_com);
+            //     com_jpText.html(init_com);
+            //
+            // }
         }
     };
 
@@ -319,9 +289,17 @@ let options = new p5(s1 => {
     Function called when request button clicked
      */
     function requestButtonClicked() {
-        let request =
-        request_update();
-        requestClicked = true;
+        let user_selected_request = {
+            edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
+            edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
+        };
+
+        displaygraph.requestSelected = true;
+        zerosim.runSingleSimulation(user_selected_request);
+
+        // let request =
+        // request_update();
+        // requestClicked = true;
     }
 
     function request_update() {
@@ -330,7 +308,7 @@ let options = new p5(s1 => {
 
         let user_selected_request = {
             edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
-            r_values: [buttons.user_select.node_i_r.value(), buttons.user_select.node_j_s.value()]
+            edge_randomness: [buttons.user_select.node_i_r.value(), buttons.user_select.node_j_s.value()]
         }
 
         // Check if edge exists

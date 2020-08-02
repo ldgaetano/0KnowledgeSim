@@ -4,6 +4,7 @@ class DisplayGraph {
     previous_cells = null;    // Array containing Cell instances of the previously selected cells.
     selected_cells = null;    // Array containing Cell instances the selected cells.
     selected_cells_id = null; // Array containing ids of the selected cells.
+    requestSelected;          // Flag to keep track if a request has been selected.
 
     /**
      * Constructor for DisplayGraph instance.
@@ -26,6 +27,7 @@ class DisplayGraph {
         this.previous_cells = [];
         this.selected_cells = [];
         this.selected_cells_id = [];
+        this.requestSelected = false;
     }
 
     /**
@@ -180,32 +182,49 @@ class DisplayGraph {
             this.display_graph.cells.forEach(cell => {
                 if (cell.mouseIsInsideCell(sketch.mouseX, sketch.mouseY, sketch)) {
                     // Add Cell to array when clicked
-                    if(this.selected_cells.length < 2) {
-                        this.selected_cells.push(cell);
-                        this.selected_cells_id.push(cell.id);
-                        this.selected_cells.forEach(cell => {
-                           cell.cellSelected();
-                        });
-                    } else {
-                        // Empty array if nothing is selected.
-                        this.selected_cells = [];
-                        this.selected_cells_id =[];
-                        this.selected_cells.push(cell);
-                        this.selected_cells_id.push(cell.id);
-                        this.selected_cells.for(cell => {
-                            cell.cellSelected();
-                        });
-                    }
-                    // Log selected cells for
-                    if (this.selected_cells.length === 2) {
-                        console.log("Cells Selected Below: \n");
-                        console.log("--Cell ID: ");
-                        console.log(this.selected_cells_id);
-                        console.log("--Cell Object: ");
-                        console.log(this.selected_cells);
-                    }
+                    // if(this.selected_cells.length > 0 && this.selected_cells.length < 2) {
+                    //     this.selected_cells.push(cell);
+                    //     this.selected_cells_id.push(cell.id);
+                    //     this.selected_cells.forEach(cell => {
+                    //        cell.cellSelected();
+                    //     });
+                    // } else {
+                    //     // Empty array if nothing is selected.
+                    //     this.selected_cells = [];
+                    //     this.selected_cells_id =[];
+                    //     this.selected_cells.push(cell);
+                    //     this.selected_cells_id.push(cell.id);
+                    //     this.selected_cells.forEach(cell => {
+                    //         cell.cellSelected();
+                    //     });
+                    // }
+                    // Add Cell to selection array
+                        if (this.selected_cells.length < 2) {
+                            cell.flags.clicked = true;
+                            this.selected_cells.push(cell);
+                            this.selected_cells_id.push(cell.id);
+                            console.log("Cell Selected:");
+                            console.log("--Cell Object: ");
+                            console.log(cell);
+                        }
+
+                        if (this.selected_cells.length === 2 && !this.selected_cells.includes(cell)) {
+                            this.selected_cells.forEach(cell => {
+                                cell.flags.clicked = false;
+                            });
+                            this.selected_cells = [];
+                            this.selected_cells_id = [];
+                            cell.flags.clicked = true;
+                            this.selected_cells.push(cell);
+                            this.selected_cells_id.push(cell.id);
+                            console.log("Cell Selected:");
+                            console.log("--Cell Object: ");
+                            console.log(cell);
+                        }
                 } else {
-                    cell.flags.clicked = false;
+                    if (!this.selected_cells.includes(cell)) {
+                        cell.flags.clicked = false;
+                    }
                 }
             });
         }
