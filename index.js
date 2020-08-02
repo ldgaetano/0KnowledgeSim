@@ -1,459 +1,346 @@
 console.log("--- ZERO KNOWLEDGE SIM ---");
 console.log("Written by Luca D'Angelo and Jenny Long");
 console.log("McGill University 2020 \n");
+
 /*
-    Defining global constants
+    Global Variables
  */
+
 let requestClicked = false;
 
-const diameter = 30;
-const rate =  50
-
-// The provers
-let p1;
-let p2;
-
-// The verifiers
-let v1;
-let v2;
-
 let entitySelectedIndex = -1;
-let provers;
-let verifiers;
 
 // The valid graph colorings
 let threeCol = [];
 
-// The graph
-let V = [0,1,2,3,4,5,6,7,8,9,10,11];
-let E = [[0,6], [0,7], [7,6], [7,1], [7,8], [1,8], [1,4], [8,2], [8,9], [2,9], [2,5], [9,10], [9,3], [3,10], [10,11], [10,4], [4,11], [11,5], [11,6], [5,6]];
-let E_Ascending = [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]];
-let AdjMatrix = [];
+// characters
+let characters = [];
+let provers = [];
+let verifiers = [];
+const char_diam = 30;
+
+// verifiers
+let v1, v2;
+const v1_x = 100;
+const v1_y = 100;
+const v2_x = 450;
+const v2_y = 450;
+let v1_requests = [];
+let v2_requests = [];
+
+// provers
+let p1, p2;
+const p1_x = 150;
+const p1_y = 150;
+const p2_x = 400;
+const p2_y = 400;
+
+// requests
+const info_diam = 0;
+const info_speed = 2;
+const gen_request_color = "red";
+const user_request_name = "User Request";
+
+// Input graph parameters
+let graph_params = {
+    graph: {
+        V: [0,1,2,3,4,5,6,7,8,9,10,11],
+        //E: [[0,6], [0,7], [7,6], [7,1], [7,8], [1,8], [1,4], [8,2], [8,9], [2,9], [2,5], [9,10], [9,3], [3,10], [10,11], [10,4], [4,11], [11,5], [11,6], [5,6]],
+        E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]]
+    },
+    graph_colors: {0: "red", 1: "green", 2: "blue"}
+}
+
+// Simulation Instance and DisplayGraph Instance
+let zerosim = new Simulation("Zero-Knowledge-Sim", 0, graph_params.graph, graph_params.graph_colors);
+let displaygraph = new DisplayGraph("Star Graph", 0, "Star", 86.6, 250, 86.6, 50, graph_params.graph, graph_params.graph_colors);
 
 /*
 Color value is based on index of graphCol array:
-    0 = "red"
-    1 = "green"
-    2 = "blue"
+    Index 0 = "red"
+    Index 1 = "green"
+    Index 2 = "blue"
  */
-let graphCol = ["red", "green", "blue"];
+let graphCol = {"red": 0, "green": 1, "blue": 2};
+graphCol[0]
+
 
 console.log("COLOR CODE: 0 => RED, 1 => GREEN, 2 => BLUE");
 
-// 0 => user information
-// 2 => backend user information
-let previous = [];
-let selected = [];
-let selectID = [];
-let r0,r2,s0,s2;
+// Simulation Parameters
+let simulation_params = {
+    requests: {
+        user_request: {
+            user_selected_edge: [],
+            user_selected_nodes: [],
+            user_r: null,
+            user_s: null,
+            previous_user_selected_edge: [],
+        },
+        automated_request: {
+            auto_selected_edge: [],
+            auto_selected_edge_nodes: [],
+            auto_r: null,
+            auto_s: null,
+
+        }
+    },
+    commits: {
+        user_commit: {
+            user_node_i: null,
+            user_node_j: null
+        },
+        automated_commit: {
+            auto_node_ip: null,
+            auto_node_jp: null
+        }
+    }
+
+}
+
+let previous_edge = [];
+let user_selected_edge = [];
+let selected_edge_nodes = [];
+let r_user, r_auto, s_user, s_auto;
 let b = [];
-let selected2 = [];
-let selectID2 = [];
-let intercr, intercs;
-let wi, wj, wipp, wjpp;
-let wiPos, wjPos, wippPos, wjppPos;
-
-// Arrays where nodes and edges are stored for the 'displayed' graph
-let cells = [];
-let connections = [];
-
-// cells
-let cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8, cell_9, cell_10, cell_11, cell_12;
-
-// connections
-let c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21;
+let auto_selected_edge = [];
+let auto_selected_edge_nodes = [];
+let intercection_r, intercection_s;
+let com_i, com_j, com_ip, com_jp;
+let com_iText, com_jText, com_ipText, com_jpText; //
 
 // Buttons
-let honest;
-let dishonest;
-let request;
-let edge;
-let well;
-let pr1, pr2, n1, n2, n3, n4, r2_text, s2_text, result;
-let init_com = "-";
-let node1_r;
-let node2_s;
-
-
-
-/*
-Generate random b_i for each of the nodes
-*/
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is exclusive and the minimum is inclusive
+let buttons = {
+    cases: {
+        honest_case: null,
+        dishonest_case: null,
+    },
+    tests: {
+        request: null,
+        edge_verification: null,
+        well_definition: null,
+    },
+    user_select: {
+        node_i_r: null,
+        node_j_s: null
+    }
 };
 
-
+// Text
+let text = {
+    instructions: {
+        instruction_1: null,
+        instruction_2: null
+    },
+    user_select: {
+        node_i_r: null,
+        node_j_s: null
+    },
+    table: {
+        prover_1: null,
+        prover_2: null,
+        node_i: null,
+        node_j: null,
+        node_ip: null,
+        node_jp: null,
+        node_ip_r: null,
+        node_jp_s: null,
+        result: null,
+        init: "-"
+    },
+    commits: {
+        user_commit: {
+            node_i: null,
+            node_j: null
+        },
+        automated_commit: {
+            node_ip: null,
+            node_jp: null
+        }
+    }
+};
 
 /*
-   Canvas that displays the graph
+User Options Canvas
  */
-let myp5Graph = new p5(sketch2 => {
+let options = new p5(s1 => {
 
 
-    // Find the adjacency list
-    for (let j=0; j< V.length; j++) {
-        let neighbours = [];
-        let ind = 0; // initialise an index at 0
-        for (let i = 0; i < E.length; i++){
-            // if node index in the array
-            if(E[i].includes(V.indexOf(V[j])))
-            {
-                ind = E[i].indexOf(V.indexOf(V[j]));
-                ind = 1-ind;
-                neighbours.push(E[i][ind]);
-            }
-        }
-        AdjMatrix.push(neighbours);
-    }
-    console.log("Adjacency List: \n");
-    console.log(AdjMatrix);
-
-    //Three coloring algorithm -- using backtracking
-    threeCol = [];
-    let color = Array(V.length);
-    color.fill(-1);
-
-    function coloring(node) {
-        if (node == V.length) {
-            threeCol.push([...color]);
-            return;
-        }
-
-        let availableCol = [true, true, true];
-        for(let i = 0; i < AdjMatrix[node].length; i++)
-            if (color[AdjMatrix[node][i]] != -1)
-                availableCol[color[AdjMatrix[node][i]]] = false;
-
-        for (let i = 0; i < 3; ++i) {
-            if (availableCol[i]) {
-                color[node] = i;
-                coloring(node + 1);
-            }
-        }
-
-        color[node] = -1;
-    }
-
-    // calling the function
-    coloring(0);
-
-    // only need 6 of the 18 permutations
-    threeCol = [threeCol[0], threeCol[1], threeCol[8], threeCol[9], threeCol[16], threeCol[17]];
-
-    console.log("Possible 3-colorings: \n");
-    console.log(threeCol);
-
-    sketch2.setup = () => {
-        let canv = sketch2.createCanvas(500, 500);
-        canv.position(10,280);
-
-        // Defining the coordinate system for displaying the graph
-        let origin_x = 86.6;
-        let origin_y = 250;
-        let x = 86.6;
-        let y = 50;
-
-        // Create cells
-        cell_1 = new Cell(0, origin_x, origin_y);
-        cell_2 = new Cell(1, origin_x + x, origin_y - 3*y);
-        cell_3 = new Cell(2, origin_x + 3*x, origin_y - 3*y);
-        cell_4 = new Cell(3, origin_x + 4*x, origin_y);
-        cell_5 = new Cell(4, origin_x + 3*x, origin_y + 3*y);
-        cell_6 = new Cell(5, origin_x + x, origin_y + 3*y);
-        cell_7 = new Cell(6, origin_x + x, origin_y + y);
-        cell_8 = new Cell(7, origin_x + x, origin_y - y);
-        cell_9 = new Cell(8, origin_x + 2*x, origin_y - 2*y);
-        cell_10 = new Cell(9, origin_x + 3*x, origin_y - y);
-        cell_11 = new Cell(10, origin_x + 3*x, origin_y + y);
-        cell_12 = new Cell(11, origin_x + 2*x, origin_y + 2*y);
-
-        // Add cells to cells list
-        cells.push(cell_1);
-        cells.push(cell_2);
-        cells.push(cell_3);
-        cells.push(cell_4);
-        cells.push(cell_5);
-        cells.push(cell_6);
-        cells.push(cell_7);
-        cells.push(cell_8);
-        cells.push(cell_9);
-        cells.push(cell_10);
-        cells.push(cell_11);
-        cells.push(cell_12);
-
-        // Create connections between cells
-        c1 = new Connection(cell_1, cell_7);
-        c2 = new Connection(cell_1, cell_8);
-        c3 = new Connection(cell_8, cell_7);
-        c4 = new Connection(cell_8, cell_2);
-        c5 = new Connection(cell_8, cell_9);
-        c6 = new Connection(cell_2, cell_9);
-        c7 = new Connection(cell_2, cell_5);
-        c8 = new Connection(cell_9, cell_3);
-        c9 = new Connection(cell_9, cell_10);
-        c10 = new Connection(cell_3, cell_10);
-        c11 = new Connection(cell_3, cell_6);
-        c12 = new Connection(cell_10, cell_11);
-        c13 = new Connection(cell_10, cell_4);
-        c14 = new Connection(cell_4, cell_11);
-        c15 = new Connection(cell_11, cell_12);
-        c16 = new Connection(cell_11, cell_5);
-        c17 = new Connection(cell_5, cell_12);
-        c18 = new Connection(cell_12, cell_6);
-        c19 = new Connection(cell_12, cell_7);
-        c20 = new Connection(cell_6, cell_7);
-
-        // Add connections to connections list
-        connections.push(c1);
-        connections.push(c2);
-        connections.push(c3);
-        connections.push(c4);
-        connections.push(c5);
-        connections.push(c6);
-        connections.push(c7);
-        connections.push(c8);
-        connections.push(c9);
-        connections.push(c10);
-        connections.push(c11);
-        connections.push(c12);
-        connections.push(c13);
-        connections.push(c14);
-        connections.push(c15);
-        connections.push(c16);
-        connections.push(c17);
-        connections.push(c18);
-        connections.push(c19);
-        connections.push(c20);
-    };
-
-    // Draw the graph
-    sketch2.draw = () => {
-        sketch2.background(220);
-        connections.forEach(conn => {
-            conn.render(sketch2);
-        });
-
-        // Change node colour when hovering over it with mouse
-        cells.forEach (cell => {
-            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)) {
-                cell.flags.hover = true;
-                if (previous.includes(cell)) {
-                    cell.flags.hover = true;
-                    cell.flags.revealed = false;
-                }
-            } else {
-                cell.flags.hover = false;
-                if (previous.includes(cell)) {
-                    cell.flags.hover = false;
-                    cell.flags.revealed = true;
-                }
-            }
-            cell.render(sketch2);
-        });
-
-
-    };
-
-    // Change node color and log selected nodes when clicking
-    sketch2.mouseClicked = () => {
-
-        cells.forEach(cell => {
-            if (cell.isInside(sketch2.mouseX, sketch2.mouseY, sketch2)){
-                if(selected.length < 2) {
-                    selected.push(cell);
-                    selectID.push(cell.id);
-                    cell.changeCol(selected);
-                 } else{
-                    selected = [];
-                    selectID =[]
-                    selected.push(cell);
-                    selectID.push(cell.id);
-                    cell.changeCol(selected);
-                }
-
-                if (selected.length == 2) {
-                    console.log("Cells Selected Below: \n");
-                    console.log("--Node ID: ");
-                    console.log(selectID);
-                    console.log("--Node Object: ");
-                    console.log(selected);
-                }
-
-            } else {
-                cell.flags.clicked = false;
-            };
-        });
-
-    };
-
-    //Find the pre-agreed b value for each of the nodes
-    for (let i = 0; i< V.length; i++){
-        b.push(getRandomInt(0,2));
-    }
-
-}, "graph-canvas");
-
-/*
-User interaction canvas
- */
-let myp5User = new p5(sketch1 => {
-
-
-    sketch1.setup = () => {
-        let canvUser = sketch1.createCanvas(1200, 265);
-        canvUser.position(10,5);
+    s1.setup = () => {
+        let canvUser = s1.createCanvas(1200, 300);
 
         // Instructions to user
-        let instruction_1 = sketch1.createElement("h3", "Please choose 2 adjacent nodes with appropriate r and s values");
-        instruction_1.position(20, 1);
+        {
+            text.instructions.instruction_1 = s1.createElement("h3", "Please choose 2 adjacent nodes with appropriate r and s values");
+            text.instructions.instruction_1.position(20, 1);
 
-        let instruction_2 = sketch1.createElement("h3", "Please choose nodes in ascending order");
-        instruction_2.position(20, 25);
+            text.instructions.instruction_2 = s1.createElement("h3", "Please choose nodes in ascending order");
+            text.instructions.instruction_2.position(20, 25);
+        }
 
         // Randomness options text
-        let n1_text = sketch1.createElement("h4", "r");
-        let n2_text = sketch1.createElement("h4", "s");
-        n1_text.position(30, 60);
-        n2_text.position(120, 60);
+        {
+            text.user_select.node_i_r = s1.createElement("h4", "r");
+            text.user_select.node_j_s = s1.createElement("h4", "s");
+            text.user_select.node_i_r.position(30, 60);
+            text.user_select.node_j_s.position(120, 60);
+        }
 
-        // chose randomness selection for node i and j
-        node1_r = sketch1.createSelect();
-        node2_s = sketch1.createSelect();
+        // Randomness select buttons
+        {
+            buttons.user_select.node_i_r = s1.createSelect();
+            buttons.user_select.node_j_s = s1.createSelect();
 
-        node1_r.position(45, 80);
-        node2_s.position(node1_r.x+90, node1_r.y);
+            buttons.user_select.node_i_r.position(45, 80);
+            buttons.user_select.node_j_s.position(buttons.user_select.node_i_r.x + 90, buttons.user_select.node_i_r.y);
 
-        node1_r.option('1');
-        node1_r.option('2');
+            buttons.user_select.node_i_r.option('1');
+            buttons.user_select.node_j_s.option('2');
 
-        node2_s.option('1');
-        node2_s.option('2');
+            buttons.user_select.node_i_r.option('1');
+            buttons.user_select.node_j_s.option('2');
+        }
 
-        // set up the different buttons
-        honest = sketch1.createButton('Honest Prover Case');
-        request = sketch1.createButton('Request');
-        edge = sketch1.createButton('Edge Verification Test');
-        well = sketch1.createButton('Well-definition Test');
-        dishonest = sketch1.createButton('Dishonest Prover Case');
+        // Honest prover button
+        {
+            buttons.cases.honest_case = s1.createButton('Honest Prover Case');
+            buttons.cases.honest_case.position(20, 120);
+            buttons.cases.honest_case.style('font-size', '20px');
+            buttons.cases.honest_case.style('background-color', s1.color(255));
+            buttons.cases.honest_case.style('color: black');
+            buttons.cases.honest_case.mouseClicked(honest_update);
+        }
 
-        // honest prover button
-        honest.position(20, 120);
-        honest.style('font-size', '20px');
-        honest.style('background-color', sketch1.color(255));
-        honest.style('color: black');
-        honest.mouseClicked(honest_update);
+        // Dishonest prover button
+        {
+            buttons.cases.dishonest_case = s1.createButton('Dishonest Prover Case');
+            buttons.cases.dishonest_case.position(buttons.cases.honest_case.x + 280, buttons.cases.honest_case.y);
+            buttons.cases.dishonest_case.style('font-size', '20px');
+            buttons.cases.dishonest_case.style('background-color', s1.color(255));
+            buttons.cases.dishonest_case.style('color: black');
+            buttons.cases.dishonest_case.mouseClicked(dishonest_update);
+        }
 
-        // dishonest prover button
-        dishonest.position(honest.x + 280, honest.y);
-        dishonest.style('font-size', '20px');
-        dishonest.style('background-color', sketch1.color(255));
-        dishonest.style('color: black');
-        dishonest.mouseClicked(dishonest_update);
+        // Request button
+        {
+            buttons.tests.request = s1.createButton('Request');
+            buttons.tests.request.position(210, buttons.cases.honest_case.y + buttons.cases.honest_case.height + 20);
+            buttons.tests.request.style('font-size', '20px');
+            buttons.tests.request.style('background-color', s1.color(255));
+            buttons.tests.request.style('color: black');
+            buttons.tests.request.id('comButton');
+            buttons.tests.request.mouseClicked(requestButtonClicked());
+            buttons.tests.request.mouseClicked(() => {
+                request_update();
+                requestClicked = true;
+            })
+        }
 
-        // request
-        request.position(210, honest.y+honest.height+20);
-        request.style('font-size', '20px');
-        request.style('background-color', sketch1.color(255));
-        request.style('color: black');
-        request.id('comButton');
-        request.mouseClicked(() => {
-            request_update();
-            requestClicked = true;
-        })
+        // Edge verification button
+        {
+            buttons.tests.edge_verification = s1.createButton('Edge Verification Test');
+            buttons.tests.edge_verification.position(160, buttons.tests.request.y + buttons.tests.request.height + 10);
+            buttons.tests.edge_verification.style('font-size', '20px');
+            buttons.tests.edge_verification.style('background-color', s1.color(255));
+            buttons.tests.edge_verification.style('color: black');
+            buttons.tests.edge_verification.mouseClicked(() => {
+                edge_update();
+                requestClicked = true;
+            });
+        }
 
-        // edge verification
-        edge.position(160, request.y + request.height+10);
-        edge.style('font-size', '20px');
-        edge.style('background-color', sketch1.color(255));
-        edge.style('color: black');
-        edge.mouseClicked(() => {
-            edge_update();
-            requestClicked = true;
-        });
+        // Well definition button
+        {
+            buttons.tests.well_definition = s1.createButton('Well-definition Test');
+            buttons.tests.well_definition.position(170, buttons.tests.edge_verification.y + buttons.tests.edge_verification.height + 20);
+            buttons.tests.well_definition.style('font-size', '20px');
+            buttons.tests.well_definition.style('background-color', s1.color(255));
+            buttons.tests.well_definition.style('color: black');
+            buttons.tests.well_definition.mouseClicked(() => {
+                well_update();
+                requestClicked = true;
+            });
+        }
 
-        // well definition
-        well.position(170, edge.y + edge.height+20);
-        well.style('font-size', '20px');
-        well.style('background-color', sketch1.color(255));
-        well.style('color: black');
-        well.mouseClicked(() => {
-            well_update();
-            requestClicked = true;
-        });
+        // Output table
+        {
+            text.table.prover_1 = s1.createElement('h4', "Prover 1");
+            text.table.prover_1.position(600, 40);
+            text.table.prover_2 = s1.createElement('h4', "Prover 2");
+            text.table.prover_2.position(600, text.table.prover_1.y + text.table.prover_1.height * 2);
+        }
 
-        // set up output table
-        pr1 = sketch1.createElement('h4', "Prover 1");
-        pr1.position(600, 40);
-        pr2 = sketch1.createElement('h4', "Prover 2");
-        pr2.position(600, pr1.y + pr1.height*2);
+        // Node names
+        {
+            text.table.node_i = s1.createElement('h4', "Node i");
+            text.table.node_j = s1.createElement('h4', "Node j");
+            text.table.node_ip = s1.createElement('h4', "Node i'");
+            text.table.node_jp = s1.createElement('h4', "Node j'");
+            text.table.node_ip_r = s1.createElement('h4', "r'");
+            text.table.node_jp_s = s1.createElement('h4', "s'");
+            text.table.node_i.position(700, 5);
+            text.table.node_j.position(800, 5);
+            text.table.node_ip.position(900, 5);
+            text.table.node_jp.position(1000, 5);
+            text.table.node_ip_r.position(1100, 5);
+            text.table.node_jp_s.position(1150, 5);
+        }
 
-        // node names
-        n1 = sketch1.createElement('h4', "Node i" );
-        n2 = sketch1.createElement('h4', "Node j" );
-        n3 = sketch1.createElement('h4', "Node i'");
-        n4 = sketch1.createElement('h4', "Node j'");
-        r2_text = sketch1.createElement('h4', "r'");
-        s2_text = sketch1.createElement('h4', "s'");
-        n1.position(700, 5);
-        n2.position(800, 5);
-        n3.position(900, 5);
-        n4.position(1000, 5);
-        r2_text.position(1100, 5);
-        s2_text.position(1150, 5);
+        // Commit values for each node
+        {
+            text.commits.user_commit.node_i = s1.createElement('h4', text.table.init);
+            com_iText.position(n1.x, pr1.y);
 
-        // commit values for each node
-        wiPos = sketch1.createElement('h4', init_com);
-        wiPos.position(n1.x, pr1.y);
+            com_jText = s1.createElement('h4', init_com);
+            com_jText.position(n2.x, pr1.y);
 
-        wjPos = sketch1.createElement('h4', init_com);
-        wjPos.position(n2.x, pr1.y);
+            com_ipText = s1.createElement('h4', init_com);
+            com_ipText.position(n3.x, pr2.y);
 
-        wippPos = sketch1.createElement('h4', init_com);
-        wippPos.position(n3.x, pr2.y);
+            com_jpText = s1.createElement('h4', init_com);
+            com_jpText.position(n4.x, pr2.y);
 
-        wjppPos = sketch1.createElement('h4', init_com);
-        wjppPos.position(n4.x, pr2.y);
+            if (simulation_params.requests.user_request.user_selected_nodes[0] == null || simulation_params.requests.user_request.user_selected_nodes[1] == null) {
+                n1.html("Node i");
+                n2.html("Node j");
+                n3.html("Node i'");
+                n4.html("Node j'");
 
-        if(selectID[0] == null || selectID[1]== null ) {
-            n1.html("Node i" );
-            n2.html("Node j" );
-            n3.html("Node i'");
-            n4.html("Node j'");
+                com_iText.html(init_com);
+                com_jText.html(init_com);
+                com_ipText.html(init_com);
+                com_jpText.html(init_com);
 
-            wiPos.html(init_com);
-            wjPos.html(init_com);
-            wippPos.html(init_com);
-            wjppPos.html(init_com);
-
+            }
         }
     };
 
     /*
     Function called when request button clicked
      */
-    let request_update = () => {
+    function requestButtonClicked() {
+        let request =
+        request_update();
+        requestClicked = true;
+    }
 
-        checkEdge(selectID);
+    function request_update() {
 
         console.log("REQUEST");
 
-        // change the flags of the previously selected nodes
-        if (previous.length > 0) {
-            previous.forEach(cell => {
-                cell.flags.revealed = false;
-                cell.flags.clicked = false;
-                cell.flags.hover = false;
-                cell.revealCol = 255;
-            });
-            previous = [];
+        let user_selected_request = {
+            edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
+            r_values: [buttons.user_select.node_i_r.value(), buttons.user_select.node_j_s.value()]
         }
 
-        // pick three-coloring of the graph
-        let randomIndex = getRandomInt(0, threeCol.length-1);
-        update3Col(randomIndex);
+        // Check if edge exists
+        displaygraph.includesEdge()
+
+        // Change the flags of the previously selected cells
+        displaygraph.updatePreviousCellsFlags();
+
+        // Pick three-coloring of the graph
+        displaygraph.updateDisplayedGraph3Coloring(simulation.simulation_params.coloring);
 
         // user picks edge with r and s
         r0 = node1_r.value();
@@ -466,20 +353,20 @@ let myp5User = new p5(sketch1 => {
         console.log("s = " + s0);
 
         // pick random edge in graph
-        selected2 = getEdge();                          // cell objects
+        selected2 = getEdge();                          // cell object
         selectID2 = [selected2[0].id, selected2[1].id]; // cell id
 
         console.log("Node i': " + selectID2[0]);
         console.log("Node j': " + selectID2[1]);
 
-        // backend pick random r' and s'
+        // backend picks random r' and s'
         r2 = getRandomInt(1,2);
         s2 = getRandomInt(1,2);
 
         console.log("r' = " + r2);
         console.log("s' = " + s2);
 
-        // calculate commits
+        // calculate commit values
         commits(randomIndex);
         console.log("w_i: " + wi);
         console.log("w_j: " + wj);
@@ -764,7 +651,6 @@ let myp5User = new p5(sketch1 => {
         selectID = [];
     };
 
-
     /*
     Function called when dishonest prover case button clicked
      */
@@ -808,10 +694,10 @@ let myp5User = new p5(sketch1 => {
     Commit values for COMMIT case
      */
     function commits(randomIndex) {
-        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
-        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
-        wipp = checkModSum(b[selectID2[0]] * r2 + threeCol[randomIndex][selectID2[0]]);
-        wjpp = checkModSum(b[selectID2[1]] * s2 + threeCol[randomIndex][selectID2[1]]);
+        com_i = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        com_j = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
+        com_ip = checkModSum(b[selectID2[0]] * r2 + threeCol[randomIndex][selectID2[0]]);
+        com_jp = checkModSum(b[selectID2[1]] * s2 + threeCol[randomIndex][selectID2[1]]);
 
         console.log("b_i: " + b[selectID[0]], "c_i: " + threeCol[randomIndex][selectID[0]]);
         console.log("b_j: " + b[selectID[1]], "c_j: " + threeCol[randomIndex][selectID[1]]);
@@ -823,36 +709,36 @@ let myp5User = new p5(sketch1 => {
     Calculation for each of the 3 cases
      */
     function consistency(randomIndex){
-        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
-        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
-        wipp = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
-        wjpp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
+        com_i = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        com_j = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
+        com_ip = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
+        com_jp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
     }
     function forced_edgeV(randomIndex){
-        wi = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
-        wj = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
-        wipp = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
-        wjpp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
+        com_i = checkModSum(b[selectID[0]] * r0 + threeCol[randomIndex][selectID[0]]);
+        com_j = checkModSum(b[selectID[1]] * s0 + threeCol[randomIndex][selectID[1]]);
+        com_ip = checkModSum(b[selectID[0]] * r2 + threeCol[randomIndex][selectID[0]]);
+        com_jp = checkModSum(b[selectID[1]] * s2 + threeCol[randomIndex][selectID[1]]);
     }
     function forced_wellDef(randomIndex){
         // node i and i' intersect and have the same randomness
-        wi = checkModSum(b[intercr] * r0 + threeCol[randomIndex][intercr]);
-        wipp = checkModSum(b[intercr] * r0 + threeCol[randomIndex][intercr]);
+        com_i = checkModSum(b[intercr] * r0 + threeCol[randomIndex][intercr]);
+        com_ip = checkModSum(b[intercr] * r0 + threeCol[randomIndex][intercr]);
 
         // node j and j' intersect and have the same randomness
-        wj = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
-        wjpp = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
+        com_j = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
+        com_jp = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
     }
 
-    sketch1.draw = () => {
-        sketch1.background(220);
+    s1.draw = () => {
+        s1.background(220);
 
     }
 
     /*
     Change coloring of the graph after every query from the verifier
      */
-    function update3Col(randomIndex) {
+    function update3Coloring(three_coloring) {
         // select coloring of the graph
         cells.forEach(cell => {
             let colIndex = threeCol[randomIndex][cell.id];
@@ -861,30 +747,11 @@ let myp5User = new p5(sketch1 => {
         });
     }
 
-
     /*
     Check sum for modulo arithmetic
      */
-    function checkModSum(sum) {
-        return sum % 3;
-    }
-
-    /*
-    Check if edge exists
-     */
-    function checkEdge(edge) {
-        let counter = 0;
-        for(let i=0; i<E_Ascending.length; i++) {
-            let e = E_Ascending[i];
-            if (!arraysEqual(e, edge)) {
-                counter++;
-            }
-        }
-        if (counter == E_Ascending.length) {
-            selected = [];
-            selectID = [];
-            alert("Pick a valid edge!");
-        }
+    function checkModulo(val, modulo) {
+        return val % modulo;
     }
 
     /*
@@ -908,284 +775,474 @@ let myp5User = new p5(sketch1 => {
     }
 
 
-}, "user-canvas");
+}, "user-canvas-container");
 
-/* Information Propagation Simulation */
-let myp5 = new p5(sketch => {
-    sketch.setup = () => {
-        let canv = sketch.createCanvas(500, 500);
-        canv.position(600, 280);
-        p1 = new Prover('P1',100, 50);
-        p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
+/*
+Graph Canvas
+ */
+let graph = new p5(s2 => {
 
-        v1 = new Verifier('V1', 50, 50);
-        v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
-
-        provers = [p1, p2];
-        verifiers = [v1, v2];
-
-        // In case we want a reset button
-        let reset = sketch.createButton('Reset');
-        reset.position(600 + canv.width +20, 280);
-        // reset.style('font-size', '20px');
-        // reset.style('background-color', sketch.color(255));
-        // reset.style('color: black');
-        reset.mouseClicked(resetSketch);
-    }
-
-    // code for resetting the simulation
-    let resetSketch = () => {
-        p1 = new Prover('P1',100, 50);
-        p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
-        set = new Set();
-        p1.rings = [];
-        p1.rings = [];
-
-        v1 = new Verifier('V1', 50, 50);
-        v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
-        v1.rings = [];
-        v2.rings = [];
-
-        provers = [p1, p2];
-        verifiers = [v1, v2];
-
-        requestClicked = false
-    }
-
-    // function to check if a given pair of prover-verifier completed their communication
-    let complete = () => {
-        for (let i = 0; i < provers.length; i++){
-            if(provers[i].rings.length == 0) continue;
-            for (let j=0; j < provers[i].rings.length; j++){
-                // let ring = verifiers[i].rings[j];
-                let ringp = provers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, ringp.x, ringp.y) - verifiers[i].diameter / 2;
-                if(ringp.diameter / 2 >= d){
-                    verifiers[i].rings.shift();
-                    provers[i].rings.shift();
-
-                }
-            }
-        }
-    }
-
-    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
-    let completeOne = () => {
-        for (let i = 0; i < provers.length; i++){
-            if(provers[i].ring == null) continue;
-            let ring1 = provers[0].ring;
-            let ring2 = provers[1].ring;
-
-            let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
-            let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
-
-            if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 >= d2)){
-                verifiers[0].ring.diameter = 0;
-                provers[0].ring.diameter = 0;
-                verifiers[1].ring.diameter = 0;
-                provers[1].ring.diameter = 0;
-                requestClicked = false;
-                if(d1 > d2){
-                    verifiers[1].ring.speed = 1;
-                    provers[1].ring.speed = 1;
-                }
-                else if(d2 >d1){
-                    verifiers[0].ring.speed = 1;
-                    provers[0].ring.speed = 1;
-                }
-            }
-            if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 < d2)){
-                verifiers[0].ring.speed = 0;
-                provers[0].ring.speed = 0;
-            }
-            if((ring2.diameter / 2 >= d2) && (ring1.diameter /2 < d1)){
-                verifiers[1].ring.speed = 0;
-                provers[1].ring.speed = 0;
-            }
-
-        }
-    }
-
-    // function to check if V1's info reaches V2 before P1's commit returns back to V1
-    let checkIfTouching = () => {
-        for (let i = 0; i < verifiers.length; ++i) {
-            if (verifiers[i].rings.length == 0) continue;
-            let ring = verifiers[i].rings[0];
-            for (let j = 0; j < verifiers.length; ++j) {
-                if (i == j) continue;
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
-                if (ring.diameter / 2 >= d) {
-                    sketch.noLoop();
-                    return;
-                }
-            }
-        }
-    }
-
-    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
-    let CIT = () => {
-        for (let i = 0; i < verifiers.length; ++i) {
-            if (verifiers[i].ring == null) continue;
-            let ring = verifiers[i].ring;
-            for (let j = 0; j < verifiers.length; ++j) {
-                if (i == j) continue;
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
-                if (ring.diameter / 2 >= d) {
-                    sketch.noLoop();
-                    return;
-                }
-            }
-        }
-    }
-
-
-    let set = new Set();
-    // function that creates condition for the prover's to commit
-    let commit = () => {
-        for (let i  = 0; i < verifiers.length; i++){
-            if (verifiers[i].rings.length == 0) continue;
-            for (let j = 0; j < verifiers[i].rings.length; j++) {
-                let ring = verifiers[i].rings[j];
-                let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter / 2;
-                if (ring.diameter / 2 >= d) {
-                    provers[i].update(sketch);
-                    // provers[0].render_ringP1(sketch);
-                    // provers[1].render_ringP2(sketch);
-                    // set.add(provers[i])
-
-                }
-            }
-            if (provers[i].rings.length != 0) {
-                provers[i].grow();
-            }
-        }
-    }
-
-    // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
-    let commitOne = () => {
-        // if (verifiers[0].ring == null){
-
-        let ring1 = verifiers[0].ring;
-        let ring2 = verifiers[1].ring;
-        let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
-        let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
-
-        if (ring1.diameter / 2 >= d1){
-            provers[0].updateOneRing();
-            provers[0].renderOneRingP1(sketch);
-        }
-        if (ring2.diameter / 2 >= d2){
-            provers[1].updateOneRing();
-            provers[1].renderOneRingP2(sketch);
-        }
-    }
-
-    sketch.draw = () => {
-        sketch.background(220);
-        verifiers.forEach((e) => {
-            e.update(sketch)
-        });
-        verifiers[0].renderV1(sketch)
-        verifiers[1].renderV2(sketch)
-        // verifiers.forEach((e) => {
-        //     e.render(sketch)
-        // });
-
-        Prover.updateAll(sketch, provers, entitySelectedIndex);
-        provers[0].renderP1(sketch);
-        provers[1].renderP2(sketch);
-        // provers.forEach((e) => {
-        //     e.render(sketch)
-        // });
-        commit();
-        provers[0].render_ringP1(sketch);
-        provers[1].render_ringP2(sketch);
-        // set.forEach((e)=> {
-        //     e.update(sketch)
-        //     if (e == provers[0]){
-        //         e.render_ringP1(sketch)
-        //     }
-        //     else{
-        //         e.render_ringP2(sketch);
-        //     }
-        //     // e.update(sketch);
-        //     // e.render_ring(sketch);
-        // });
-        complete();
-        checkIfTouching();
-        // If the request or test button are clicked, than we draw the one ring
-        if (requestClicked) {
-            verifiers.forEach((e) => {
-                if(e.ring != null) {
-                    e.updateOneRing()
-                }
-                else{
-                    e.ring = {
-                        x: this.x,
-                        y: this.y,
-                        diameter: 1,
-                        speed:1
-                    };
-                    e.updateOneRing()
-                }
-            });
-            if (verifiers[0].ring != null){
-                verifiers[0].renderOneRingV1(sketch)
-            }
-            else{
-                verifiers[0].ring = {
-                    x: this.x,
-                    y: this.y,
-                    diameter:1,
-                    speed:1
-                };
-                verifiers.renderOneRingV1(sketch)
-            }
-            if (verifiers[1].ring != null){
-                verifiers[1].renderOneRingV2(sketch)
-            }
-            else{
-                verifiers[1].ring = {
-                    x: this.x,
-                    y: this.y,
-                    diameter:1,
-                    speed:1
-                };
-                verifiers.renderOneRingV2(sketch)
-            }
-            // verifiers.forEach((e) => {
-            //     if(e.ring != null) {
-            //         e.renderOneRing(sketch)
-            //     }
-            //     else{
-            //         e.ring = {
-            //             x: this.x,
-            //             y: this.y,
-            //             diameter: 1,
-            //             speed:1
-            //         };
-            //         e.renderOneRing(sketch)
-            //     }
-            // });
-            commitOne();
-            completeOne();
-            CIT();
-            // Prover.updateAll(sketch, provers, entitySelectedIndex);
-
-        }
+    s2.setup = () => {
+        let graph_canv = s2.createCanvas(500, 500);
     };
 
-
-    sketch.mousePressed = () => {
-        provers.forEach((e, i) => {
-            if (sketch.dist(sketch.mouseX, sketch.mouseY, e.x, e.y) < e.diameter) {
-                entitySelectedIndex = i;
-            }
-        });
+    s2.draw = () => {
+        s2.background(220);
+        displaygraph.renderDisplayGraph(s2);
     };
 
-    sketch.mouseReleased = () => {
-        entitySelectedIndex = -1;
+    /**
+     * Function called on mouse click event.
+     */
+    s2.mouseClicked = function() {
+        // Change node color and log selected nodes when clicking
+        displaygraph.checkCellClicking(s2);
+    };
+
+}, "graph-canvas-container");
+
+/*
+Information Propagation Simulation
+*/
+// let myp5 = new p5(sketch => {
+//
+//     sketch.setup = () => {
+//         let canv = sketch.createCanvas(500, 500);
+//         canv.position(600, 280);
+//         p1 = new Prover('P1',100, 50);
+//         p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
+//
+//         v1 = new Verifier('V1', 50, 50);
+//         v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
+//
+//         provers = [p1, p2];
+//         verifiers = [v1, v2];
+//
+//         // In case we want a reset button
+//         let reset = sketch.createButton('Reset');
+//         reset.position(600 + canv.width +20, 280);
+//         // reset.style('font-size', '20px');
+//         // reset.style('background-color', sketch.color(255));
+//         // reset.style('color: black');
+//         reset.mouseClicked(resetSketch);
+//     }
+//
+//     // code for resetting the simulation
+//     let resetSketch = () => {
+//         p1 = new Prover('P1',100, 50);
+//         p2 = new Prover('P2',sketch.width - 50, sketch.height -50 );
+//         set = new Set();
+//         p1.rings = [];
+//         p1.rings = [];
+//
+//         v1 = new Verifier('V1', 50, 50);
+//         v2 = new Verifier('V2',sketch.width - 100, sketch.height - 50);
+//         v1.rings = [];
+//         v2.rings = [];
+//
+//         provers = [p1, p2];
+//         verifiers = [v1, v2];
+//
+//         requestClicked = false
+//     }
+//
+//     // function to check if a given pair of prover-verifier completed their communication
+//     let complete = () => {
+//         for (let i = 0; i < provers.length; i++){
+//             if(provers[i].rings.length == 0) continue;
+//             for (let j=0; j < provers[i].rings.length; j++){
+//                 // let ring = verifiers[i].rings[j];
+//                 let ringp = provers[i].rings[j];
+//                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, ringp.x, ringp.y) - verifiers[i].diameter / 2;
+//                 if(ringp.diameter / 2 >= d){
+//                     verifiers[i].rings.shift();
+//                     provers[i].rings.shift();
+//
+//                 }
+//             }
+//         }
+//     }
+//
+//     // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
+//     let completeOne = () => {
+//         for (let i = 0; i < provers.length; i++){
+//             if(provers[i].ring == null) continue;
+//             let ring1 = provers[0].ring;
+//             let ring2 = provers[1].ring;
+//
+//             let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
+//             let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
+//
+//             if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 >= d2)){
+//                 verifiers[0].ring.diameter = 0;
+//                 provers[0].ring.diameter = 0;
+//                 verifiers[1].ring.diameter = 0;
+//                 provers[1].ring.diameter = 0;
+//                 requestClicked = false;
+//                 if(d1 > d2){
+//                     verifiers[1].ring.speed = 1;
+//                     provers[1].ring.speed = 1;
+//                 }
+//                 else if(d2 >d1){
+//                     verifiers[0].ring.speed = 1;
+//                     provers[0].ring.speed = 1;
+//                 }
+//             }
+//             if((ring1.diameter / 2 >= d1) && (ring2.diameter /2 < d2)){
+//                 verifiers[0].ring.speed = 0;
+//                 provers[0].ring.speed = 0;
+//             }
+//             if((ring2.diameter / 2 >= d2) && (ring1.diameter /2 < d1)){
+//                 verifiers[1].ring.speed = 0;
+//                 provers[1].ring.speed = 0;
+//             }
+//
+//         }
+//     }
+//
+//     // function to check if V1's info reaches V2 before P1's commit returns back to V1
+//     let checkIfTouching = () => {
+//         for (let i = 0; i < verifiers.length; ++i) {
+//             if (verifiers[i].rings.length == 0) continue;
+//             let ring = verifiers[i].rings[0];
+//             for (let j = 0; j < verifiers.length; ++j) {
+//                 if (i == j) continue;
+//                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
+//                 if (ring.diameter / 2 >= d) {
+//                     sketch.noLoop();
+//                     return;
+//                 }
+//             }
+//         }
+//     }
+//
+//     // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
+//     let CIT = () => {
+//         for (let i = 0; i < verifiers.length; ++i) {
+//             if (verifiers[i].ring == null) continue;
+//             let ring = verifiers[i].ring;
+//             for (let j = 0; j < verifiers.length; ++j) {
+//                 if (i == j) continue;
+//                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, verifiers[j].x, verifiers[j].y) - verifiers[j].diameter / 2;
+//                 if (ring.diameter / 2 >= d) {
+//                     sketch.noLoop();
+//                     return;
+//                 }
+//             }
+//         }
+//     }
+//
+//
+//     let set = new Set();
+//     // function that creates condition for the prover's to commit
+//     let commit = () => {
+//         for (let i  = 0; i < verifiers.length; i++){
+//             if (verifiers[i].rings.length == 0) continue;
+//             for (let j = 0; j < verifiers[i].rings.length; j++) {
+//                 let ring = verifiers[i].rings[j];
+//                 let d = sketch.dist(verifiers[i].x, verifiers[i].y, provers[i].x, provers[i].y) - verifiers[i].diameter / 2;
+//                 if (ring.diameter / 2 >= d) {
+//                     provers[i].update(sketch);
+//                     // provers[0].render_ringP1(sketch);
+//                     // provers[1].render_ringP2(sketch);
+//                     // set.add(provers[i])
+//
+//                 }
+//             }
+//             if (provers[i].rings.length != 0) {
+//                 provers[i].grow();
+//             }
+//         }
+//     }
+//
+//     // same function purpose as the one above, but just for one ring that appears when the buttons are pressed
+//     let commitOne = () => {
+//         // if (verifiers[0].ring == null){
+//
+//         let ring1 = verifiers[0].ring;
+//         let ring2 = verifiers[1].ring;
+//         let d1 = sketch.dist(verifiers[0].x, verifiers[0].y, provers[0].x, provers[0].y) - verifiers[0].diameter / 2;
+//         let d2 = sketch.dist(verifiers[1].x, verifiers[1].y, provers[1].x, provers[1].y) - verifiers[1].diameter / 2;
+//
+//         if (ring1.diameter / 2 >= d1){
+//             provers[0].updateOneRing();
+//             provers[0].renderOneRingP1(sketch);
+//         }
+//         if (ring2.diameter / 2 >= d2){
+//             provers[1].updateOneRing();
+//             provers[1].renderOneRingP2(sketch);
+//         }
+//     }
+//
+//     sketch.draw = () => {
+//         sketch.background(220);
+//         verifiers.forEach((e) => {
+//             e.update(sketch)
+//         });
+//         verifiers[0].renderV1(sketch)
+//         verifiers[1].renderV2(sketch)
+//         // verifiers.forEach((e) => {
+//         //     e.render(sketch)
+//         // });
+//
+//         Prover.updateAll(sketch, provers, entitySelectedIndex);
+//         provers[0].renderP1(sketch);
+//         provers[1].renderP2(sketch);
+//         // provers.forEach((e) => {
+//         //     e.render(sketch)
+//         // });
+//         commit();
+//         provers[0].render_ringP1(sketch);
+//         provers[1].render_ringP2(sketch);
+//         // set.forEach((e)=> {
+//         //     e.update(sketch)
+//         //     if (e == provers[0]){
+//         //         e.render_ringP1(sketch)
+//         //     }
+//         //     else{
+//         //         e.render_ringP2(sketch);
+//         //     }
+//         //     // e.update(sketch);
+//         //     // e.render_ring(sketch);
+//         // });
+//         complete();
+//         checkIfTouching();
+//         // If the request or test button are clicked, than we draw the one ring
+//         if (requestClicked) {
+//             verifiers.forEach((e) => {
+//                 if(e.ring != null) {
+//                     e.updateOneRing()
+//                 }
+//                 else{
+//                     e.ring = {
+//                         x: this.x,
+//                         y: this.y,
+//                         diameter: 1,
+//                         speed:1
+//                     };
+//                     e.updateOneRing()
+//                 }
+//             });
+//             if (verifiers[0].ring != null){
+//                 verifiers[0].renderOneRingV1(sketch)
+//             }
+//             else{
+//                 verifiers[0].ring = {
+//                     x: this.x,
+//                     y: this.y,
+//                     diameter:1,
+//                     speed:1
+//                 };
+//                 verifiers.renderOneRingV1(sketch)
+//             }
+//             if (verifiers[1].ring != null){
+//                 verifiers[1].renderOneRingV2(sketch)
+//             }
+//             else{
+//                 verifiers[1].ring = {
+//                     x: this.x,
+//                     y: this.y,
+//                     diameter:1,
+//                     speed:1
+//                 };
+//                 verifiers.renderOneRingV2(sketch)
+//             }
+//             // verifiers.forEach((e) => {
+//             //     if(e.ring != null) {
+//             //         e.renderOneRing(sketch)
+//             //     }
+//             //     else{
+//             //         e.ring = {
+//             //             x: this.x,
+//             //             y: this.y,
+//             //             diameter: 1,
+//             //             speed:1
+//             //         };
+//             //         e.renderOneRing(sketch)
+//             //     }
+//             // });
+//             commitOne();
+//             completeOne();
+//             CIT();
+//             // Prover.updateAll(sketch, provers, entitySelectedIndex);
+//
+//         }
+//     };
+//
+//
+//     sketch.mousePressed = () => {
+//         provers.forEach((e, i) => {
+//             if (sketch.dist(sketch.mouseX, sketch.mouseY, e.x, e.y) < e.diameter) {
+//                 entitySelectedIndex = i;
+//             }
+//         });
+//     };
+//
+//     sketch.mouseReleased = () => {
+//         entitySelectedIndex = -1;
+//     }
+// }, "entity-canvas");
+
+let simulation = new p5(s3 => {
+
+    let request_i1, request_i2, request_i3, request_i4;
+    let i1, i2, i3, i4;
+    i1 = [0, 1, 1, 1];
+    i2 = [1, 8, 1, 2];
+    i3 = [2, 3, 2, 2];
+    i4 = [4, 5, 2, 1];
+
+    let reset_button;
+
+    s3.setup = function() {
+        s3.createCanvas(500, 500);
+        s3.frameRate(30);
+        s3.textSize(30);
+
+        v1 = new Verifier("V1", 0, v1_x, v1_y, char_diam, "blue", "P1", "V2", s3);
+        v2 = new Verifier("V2", 1, v2_x, v2_y, char_diam, "green", "P2", "V1", s3);
+        p1 = new Prover("P1", 0, p1_x, p1_y, char_diam, "yellow", "V1", "P2", s3);
+        p2 = new Prover("P2", 1, p2_x, p2_y, char_diam, "black", "V2", "P1", s3);
+
+        request_i1 = new RequestInfo("I1", 0, i1, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
+        request_i2 = new RequestInfo("I2", 1, i2, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
+        request_i3 = new RequestInfo("I3", 0, i3, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
+        request_i4 = new RequestInfo("I4", 1, i4, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
+
+        v1_requests = [request_i1, request_i2];
+        v2_requests = [request_i3, request_i4];
+        v1.addInformation(v1_requests);
+        v2.addInformation(v2_requests);
+
+        verifiers = [v1, v2];
+        provers = [p1, p2];
+        characters = verifiers.concat(provers);
+
+        reset_button = s3.createButton("RESET");
+        reset_button.position(10, 475);
+        reset_button.mouseClicked(resetSimulation);
+
+        //request_button.mouseClicked(addInfoFromRequestButton());
+    };
+
+    s3.draw = function() {
+        s3.background(220);
+        s3.text(s3.frameCount, 500, 50);
+        displayVerifiers();
+        displayProvers();
+    };
+
+    /**
+     * Generate and emit Information from Character instance when clicking on button.
+     */
+    function addInfoFromRequestButton() {
+        v1.addSingleInformationFromUser(generateInformation());
     }
-}, "entity-canvas");
+
+    /**
+     * Generate some dummy RequestInfo instances.
+     * @returns {RequestInfo}
+     */
+    function generateInformation() {
+        return new RequestInfo(user_request_name, s3.random(), [s3.random(), s3.random(), s3.random(), s3.random()], v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, gen_request_color, s3);
+    }
+
+    /**
+     * Reset the simulation.
+     */
+    function resetSimulation() {
+        s3.noLoop();
+        for(let i in characters) {
+            let char = characters[i];
+            // Reset the position.
+            char.setCenterX(char.getInitCenterX());
+            char.setCenterY(char.getInitCenterY());
+            // Reset the information.
+            char.resetQueuedInformation();
+            char.resetDisplayedInformation();
+        }
+        s3.loop();
+    }
+
+    /**
+     * Display all of the verifiers required for the simulation.
+     */
+    function displayVerifiers() {
+        if (verifiers.length > 0) {
+            for(let i in verifiers) {
+                let verifier = verifiers[i];
+                verifier.displayCharacter(); // Display prover on the screen every frame.
+
+                // Check for commits from paired provers.
+                for(let j in provers) {
+                    let prover = provers[j];
+                    // Check if verifier and prover are linked together.
+                    if (verifier.isProverLinked(prover)) {
+                        verifier.scanForCommits(prover.getDisplayedInformations());
+                    }
+                }
+
+                // Check for requests from paired verifiers.
+                for(let k in verifiers) {
+                    let compare_verifier = verifiers[k];
+                    // Check if verifier pairs are linked together.
+                    if (verifier.isVerifierLinked(compare_verifier)) {
+                        verifier.scanForPairedRequests(compare_verifier.getDisplayedInformations());
+                    }
+                }
+                verifier.emitInformation();
+            }
+        }
+    }
+
+
+    /**
+     * Display all provers required for the simulation.
+     */
+    function displayProvers() {
+        if(provers.length > 0) {
+            for(let i in provers) {
+                let prover = provers[i];
+                prover.displayCharacter(); // Display prover on the screen every frame.
+
+                // Check for requests from paired verifiers.
+                for(let j in verifiers) {
+                    let verifier = verifiers[j];
+                    // Check if prover and verifier are linked together.
+                    if (prover.isVerifierLinked(verifier)) {
+                        prover.scanForRequests(verifier.getDisplayedInformations()); // Scan for requests from linked verifier.
+                    }
+                }
+                prover.emitInformation(); // Emit any corresponding commits.
+            }
+        }
+    }
+
+    /**
+     * Function to called when mouse click is pressed.
+     */
+    s3.mousePressed = function() {
+        if (characters.length > 0) {
+            for(let i in characters) {
+                characters[i].characterIsPressed();
+            }
+        }
+    }
+
+    /**
+     * Function called when mouse click is released.
+     */
+    s3.mouseReleased = function() {
+        for(let i in characters) {
+            characters[i].characterIsReleased();
+        }
+    }
+
+}, "simulation-canvas-container");
+
+
+/*
+Helper Methods
+ */
+
 

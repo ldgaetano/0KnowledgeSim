@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, sans-serif;
+    background-color: #dcdcdc;
+}
+
+#user-canvas-container {
+    display: block;
+    position: relative;
+    height: 300px;
+    width: 1200px;
+    margin: 0 auto;
+}
+
+#graph-sim-canvas-outer-container {
+    display: block;
+    position: relative;
+    height: 500px;
+    width: 1200px;
+    margin: 0 auto;
+}
+
+#graph-sim-canvas-inner-container {
+    display: block;
+    position: relative;
+    height: 500px;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+#graph-canvas-container {
+    display: block;
+    float: left;
+    position: relative;
+    height: 500px;
+    width: 500px;
+}
+
+#simulation-canvas-container {
+    display: block;
+    float:left;
+    position: relative;
+    height: 500px;
+    width: 500px;
+}
