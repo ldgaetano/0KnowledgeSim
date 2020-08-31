@@ -37,7 +37,7 @@ const p2_y = 400;
 
 // requests
 const info_diam = 0;
-const info_speed = 2;
+const info_speed = 3;
 const gen_request_color = "red";
 const user_request_name = "User Request";
 
@@ -214,8 +214,9 @@ let options = new p5(s1 => {
             buttons.tests.edge_verification.style('background-color', s1.color(255));
             buttons.tests.edge_verification.style('color: black');
             buttons.tests.edge_verification.mouseClicked(() => {
-                edge_update();
-                requestClicked = true;
+                edgeVerificationButtonClicked();
+                //edge_update();
+                //requestClicked = true;
             });
         }
 
@@ -283,20 +284,22 @@ let options = new p5(s1 => {
             //
             // }
         }
+
     };
 
     /*
     Function called when request button clicked
      */
     function requestButtonClicked() {
+
         let user_selected_request = {
             edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
             edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
         };
 
-        displaygraph.requestSelected = true;
-        zerosim.runSingleSimulation(user_selected_request);
-
+        //displaygraph.requestSelected = true;
+        zerosim.runSingleSimulation(user_selected_request, "REQUEST");
+        console.log(zerosim.simulation_params);
         // let request =
         // request_update();
         // requestClicked = true;
@@ -451,6 +454,18 @@ let options = new p5(s1 => {
     /*
     Function called when edge verification test button clicked
      */
+    function edgeVerificationButtonClicked() {
+
+      let user_selected_request = {
+          edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
+          edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
+      };
+
+      zerosim.runSingleSimulation(user_selected_request, "FORCED-EDGE-VERIFICATION");
+      console.log(zerosim.simulation_params);
+
+    }
+
     let edge_update = () => {
 
         checkEdge(selectID);

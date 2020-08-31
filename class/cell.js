@@ -83,7 +83,7 @@ class Cell {
      * Change the reveal color of the Cell instance.
      * @param {number} color
      */
-    updateCellColor(color) {
+    setCellColor(color) {
         this.#color = color;
     }
 

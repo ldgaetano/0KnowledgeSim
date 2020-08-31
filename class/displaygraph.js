@@ -260,7 +260,7 @@ class DisplayGraph {
         if (!this.graph.E.includes(this.selected_cells_id)) {
             this.selected_cells = [];
             this.selected_cells_id = [];
-            alert("Pick a valid edge!");
+            alert("Please pick a valid edge!");
         }
     }
 
@@ -270,7 +270,7 @@ class DisplayGraph {
      */
     updateDisplayedGraph3Coloring(three_coloring) {
         this.display_graph.cells.forEach(cell => {
-            cell.updateCellColor(this.graph_colors[three_coloring[cell.id]]);
+            cell.setCellColor(this.graph_colors[three_coloring[cell.id]]);
         });
     }
 }
