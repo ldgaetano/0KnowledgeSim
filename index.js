@@ -222,14 +222,15 @@ let options = new p5(s1 => {
 
         // Well definition button
         {
-            buttons.tests.well_definition = s1.createButton('Well-definition Test');
+            buttons.tests.well_definition = s1.createButton('Well-Definition Test');
             buttons.tests.well_definition.position(170, buttons.tests.edge_verification.y + buttons.tests.edge_verification.height + 20);
             buttons.tests.well_definition.style('font-size', '20px');
             buttons.tests.well_definition.style('background-color', s1.color(255));
             buttons.tests.well_definition.style('color: black');
             buttons.tests.well_definition.mouseClicked(() => {
-                well_update();
-                requestClicked = true;
+                wellDefinitionButtonClicked();
+                //well_update();
+                //requestClicked = true;
             });
         }
 
@@ -545,6 +546,18 @@ let options = new p5(s1 => {
     /*
     Function called when well definition test button clicked
      */
+    function wellDefinitionButtonClicked() {
+
+        let user_selected_request = {
+            edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
+            edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
+        };
+
+        zerosim.runSingleSimulation(user_selected_request, "FORCED-WELL-DEFINITION");
+        console.log(zerosim.simulation_params);
+
+    }
+
     let well_update = () => {
 
         checkEdge(selectID);
