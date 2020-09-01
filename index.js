@@ -46,7 +46,8 @@ let graph_params = {
     graph: {
         V: [0,1,2,3,4,5,6,7,8,9,10,11],
         //E: [[0,6], [0,7], [7,6], [7,1], [7,8], [1,8], [1,4], [8,2], [8,9], [2,9], [2,5], [9,10], [9,3], [3,10], [10,11], [10,4], [4,11], [11,5], [11,6], [5,6]],
-        E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]]
+        E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]],
+        compute_E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]]
     },
     graph_colors: {0: "red", 1: "green", 2: "blue"}
 }
@@ -176,7 +177,9 @@ let options = new p5(s1 => {
             buttons.cases.honest_case.style('font-size', '20px');
             buttons.cases.honest_case.style('background-color', s1.color(255));
             buttons.cases.honest_case.style('color: black');
-            buttons.cases.honest_case.mouseClicked(honest_update);
+            buttons.cases.honest_case.mouseClicked(() => {
+                honestButtonClicked();
+            });
         }
 
         // Dishonest prover button
@@ -186,7 +189,9 @@ let options = new p5(s1 => {
             buttons.cases.dishonest_case.style('font-size', '20px');
             buttons.cases.dishonest_case.style('background-color', s1.color(255));
             buttons.cases.dishonest_case.style('color: black');
-            buttons.cases.dishonest_case.mouseClicked(dishonest_update);
+            buttons.cases.dishonest_case.mouseClicked(() => {
+                dishonestButtonClicked();
+            });
         }
 
         // Request button
@@ -658,8 +663,14 @@ let options = new p5(s1 => {
     };
 
     /*
-    Function called when dishonest prover case button clicked
+    Function called when dishonest prover case button is clicked
      */
+    function dishonestButtonClicked() {
+        displaygraph.addDishonestEdgeSTAR();
+        zerosim.addDishonestEdgeSTAR();
+        console.log("DISHONEST PROVER CASE");
+    }
+
     let dishonest_update = () => {
         // add edge
         // check if edge exists - if not, add the edge
@@ -667,17 +678,23 @@ let options = new p5(s1 => {
             c21 = new Connection(cell_1, cell_4);
             connections.push(c21);
         }
-        console.log("DISHONEST PROVER CASE");
+
     };
 
-    /*
-    Function called when the honest prover button clicked
+    /**
+     * Function called when the honest prover button is clicked
      */
+    function honestButtonClicked() {
+        displaygraph.removeDishonestEdgeSTAR();
+        zerosim.removeDishonestEdgeSTAR();
+        console.log("HONEST PROVER CASE");
+    }
+
     let honest_update = () => {
         if (connections.length == 21) {
             connections.pop(); // pop off c21 if it exists
         }
-        console.log("HONEST PROVER CASE");
+
     };
 
     /*

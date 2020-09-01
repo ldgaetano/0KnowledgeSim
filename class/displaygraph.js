@@ -5,6 +5,7 @@ class DisplayGraph {
     selected_cells = null;    // Array containing Cell instances the selected cells.
     selected_cells_id = null; // Array containing ids of the selected cells.
     requestSelected;          // Flag to keep track if a request has been selected.
+    #dishonest_edge;           // Additional edge for the dishonest prover case.
 
     /**
      * Constructor for DisplayGraph instance.
@@ -64,24 +65,23 @@ class DisplayGraph {
         // Temp arrays
         let cells = [];
         let connections = [];
-        let E = graph.E;
-        let V = graph.V;
 
         // Create cells
-        let cell_1 = new Cell(0, origin_x, origin_y);
-        let cell_2 = new Cell(1, origin_x + x_step, origin_y - 3*y_step);
-        let cell_3 = new Cell(2, origin_x + 3*x_step, origin_y - 3*y_step);
-        let cell_4 = new Cell(3, origin_x + 4*x_step, origin_y);
-        let cell_5 = new Cell(4, origin_x + 3*x_step, origin_y + 3*y_step);
-        let cell_6 = new Cell(5, origin_x + x_step, origin_y + 3*y_step);
-        let cell_7 = new Cell(6, origin_x + x_step, origin_y + y_step);
-        let cell_8 = new Cell(7, origin_x + x_step, origin_y - y_step);
-        let cell_9 = new Cell(8, origin_x + 2*x_step, origin_y - 2*y_step);
-        let cell_10 = new Cell(9, origin_x + 3*x_step, origin_y - y_step);
-        let cell_11 = new Cell(10, origin_x + 3*x_step, origin_y + y_step);
-        let cell_12 = new Cell(11, origin_x + 2*x_step, origin_y + 2*y_step);
+        let cell_0 = new Cell(0, origin_x, origin_y);
+        let cell_1 = new Cell(1, origin_x + x_step, origin_y - 3*y_step);
+        let cell_2 = new Cell(2, origin_x + 3*x_step, origin_y - 3*y_step);
+        let cell_3 = new Cell(3, origin_x + 4*x_step, origin_y);
+        let cell_4 = new Cell(4, origin_x + 3*x_step, origin_y + 3*y_step);
+        let cell_5 = new Cell(5, origin_x + x_step, origin_y + 3*y_step);
+        let cell_6 = new Cell(6, origin_x + x_step, origin_y + y_step);
+        let cell_7 = new Cell(7, origin_x + x_step, origin_y - y_step);
+        let cell_8 = new Cell(8, origin_x + 2*x_step, origin_y - 2*y_step);
+        let cell_9 = new Cell(9, origin_x + 3*x_step, origin_y - y_step);
+        let cell_10 = new Cell(10, origin_x + 3*x_step, origin_y + y_step);
+        let cell_11 = new Cell(11, origin_x + 2*x_step, origin_y + 2*y_step);
 
         // Add cells to cells list
+        cells.push(cell_0);
         cells.push(cell_1);
         cells.push(cell_2);
         cells.push(cell_3);
@@ -93,29 +93,28 @@ class DisplayGraph {
         cells.push(cell_9);
         cells.push(cell_10);
         cells.push(cell_11);
-        cells.push(cell_12);
 
         // Create connections between cells
-        let c1 = new Connection(cell_1, cell_7);
-        let c2 = new Connection(cell_1, cell_8);
-        let c3 = new Connection(cell_8, cell_7);
-        let c4 = new Connection(cell_8, cell_2);
-        let c5 = new Connection(cell_8, cell_9);
-        let c6 = new Connection(cell_2, cell_9);
-        let c7 = new Connection(cell_2, cell_5);
-        let c8 = new Connection(cell_9, cell_3);
-        let c9 = new Connection(cell_9, cell_10);
-        let c10 = new Connection(cell_3, cell_10);
-        let c11 = new Connection(cell_3, cell_6);
-        let c12 = new Connection(cell_10, cell_11);
-        let c13 = new Connection(cell_10, cell_4);
-        let c14 = new Connection(cell_4, cell_11);
-        let c15 = new Connection(cell_11, cell_12);
-        let c16 = new Connection(cell_11, cell_5);
-        let c17 = new Connection(cell_5, cell_12);
-        let c18 = new Connection(cell_12, cell_6);
-        let c19 = new Connection(cell_12, cell_7);
-        let c20 = new Connection(cell_6, cell_7);
+        let c1 = new Connection(cell_0, cell_6);
+        let c2 = new Connection(cell_0, cell_7);
+        let c3 = new Connection(cell_7, cell_6);
+        let c4 = new Connection(cell_7, cell_1);
+        let c5 = new Connection(cell_7, cell_8);
+        let c6 = new Connection(cell_1, cell_8);
+        let c7 = new Connection(cell_1, cell_4);
+        let c8 = new Connection(cell_8, cell_2);
+        let c9 = new Connection(cell_8, cell_9);
+        let c10 = new Connection(cell_2, cell_9);
+        let c11 = new Connection(cell_2, cell_5);
+        let c12 = new Connection(cell_9, cell_10);
+        let c13 = new Connection(cell_9, cell_3);
+        let c14 = new Connection(cell_3, cell_10);
+        let c15 = new Connection(cell_10, cell_11);
+        let c16 = new Connection(cell_10, cell_4);
+        let c17 = new Connection(cell_4, cell_11);
+        let c18 = new Connection(cell_11, cell_5);
+        let c19 = new Connection(cell_11, cell_6);
+        let c20 = new Connection(cell_5, cell_6);
 
         // Add connections to connections list
         connections.push(c1);
@@ -140,6 +139,30 @@ class DisplayGraph {
         connections.push(c20);
 
         return { cells, connections };
+    }
+
+    /**
+     * Method called when the dishonest prover button is clicked. Will add the dishonest edge to the display_graph.
+     */
+    addDishonestEdgeSTAR() {
+
+        if (this.display_graph.connections.length !== 21) {
+
+            this.#dishonest_edge = new Connection(this.display_graph.cells[0], this.display_graph.cells[3]);
+            this.display_graph.connections.push(this.#dishonest_edge);
+        }
+    }
+
+    /**
+     * Method called when the dishonest prover button is clicked. Will remove the dishonest edge from the display_graph.
+     */
+    removeDishonestEdgeSTAR() {
+
+        if (this.display_graph.connections.length === 21) {
+
+            // Pop the #dishonest_edge
+            this.display_graph.connections.pop();
+        }
     }
 
     /**

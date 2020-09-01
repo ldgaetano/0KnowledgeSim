@@ -2,6 +2,7 @@ class Simulation {
 
     simulation_params = null;
     simulations;
+    dishonest_edge_STAR = [0, 3];
 
     /**
      * Constructor for Zero-Knowledge Simulation instance.
@@ -67,7 +68,7 @@ class Simulation {
     static computeAdjacencyList(graph) {
 
         let adj_list = [];
-        let E = graph.E;
+        let E = graph.compute_E;
         let V = graph.V;
 
         // Find the adjacency list
@@ -155,10 +156,12 @@ class Simulation {
 
             let availableCol = [true, true, true];
             for(let i = 0; i < adj_matrix[node].length; i++)
+
                 if (color[adj_matrix[node][i]] !== -1)
                     availableCol[color[adj_matrix[node][i]]] = false;
 
             for (let i = 0; i < 3; ++i) {
+
                 if (availableCol[i]) {
                     color[node] = i;
                     threeColoring(node + 1);
@@ -415,10 +418,34 @@ class Simulation {
     }
 
     /**
+     * Method called when the dishonest prover button is clicked. Will add the dishonest edge to the display_graph.
+     */
+    addDishonestEdgeSTAR() {
+
+        if (this.simulation_params.graph.E.length !== 21) {
+
+            this.simulation_params.graph.E.push(this.dishonest_edge_STAR);
+        }
+    }
+
+    /**
+     * Method called when the dishonest prover button is clicked. Will remove the dishonest edge from the display_graph.
+     */
+    removeDishonestEdgeSTAR() {
+
+        if (this.simulation_params.graph.E.length === 21) {
+
+            // Pop the #dishonest_edge
+            this.simulation_params.graph.E.pop();
+        }
+    }
+
+    /**
      * Reset some parameters for the single simulation
      */
     resetSingleSim() {
         this.simulation_params.result.forced_well_definition_intersection = [];
+        this.simulation_params.result.node_colorings = [];
     }
 
 
@@ -514,6 +541,7 @@ class Simulation {
 
                 } else {
 
+                    // Edges are disjoint
                     this.simulation_params.result.edge_verification_status = false;
                     this.simulation_params.result.well_definition_status = false;
                     this.simulation_params.result.node_colorings = null;
