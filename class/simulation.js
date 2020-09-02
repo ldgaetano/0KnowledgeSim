@@ -1,15 +1,16 @@
 class Simulation {
 
-    simulation_params = null;
-    simulations;
-    dishonest_edge_STAR = [0, 3];
+    simulation_case;              // Simulation case chosen
+    simulation_mode;              // Simulation mode chosen
+    simulations = [];             // Storage for automatic mode
+    dishonest_edge_STAR = [0, 3]; // Dishonest edge for the STAR graph
 
     /**
      * Constructor for Zero-Knowledge Simulation instance.
-     * @param {string}       name
-     * @param {number}       id
-     * @param {Object}       graph
-     * @param {string[]}     colors
+     * @param {string}   name
+     * @param {number}   id
+     * @param {Object}   graph
+     * @param {string[]} colors
      */
     constructor(name, id, graph, colors) {
         this.name = name;
@@ -443,7 +444,7 @@ class Simulation {
     /**
      * Reset some parameters for the single simulation
      */
-    resetSingleSim() {
+    resetSingleSimulation() {
         this.simulation_params.result.forced_well_definition_intersection = [];
         this.simulation_params.result.node_colorings = [];
     }
@@ -451,242 +452,251 @@ class Simulation {
 
     /**
      * Run one iteration of the simulation. Assume input edges are sorted in ascending order.
+     * @param {String} test_case      The case the user has chosen: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
      * @param {Object} [user_request] Object that includes edge and randomness values as parameters.
-     * @param {String} test_case           The case the user has chosen: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
      */
-    runSingleSimulation(user_request, test_case) {
+    runSingleSimulation(test_case, user_request = {}) {
 
-        this.resetSingleSim();
+        this.resetSingleSimulation();
 
-        if(!user_request) {
+        if ( ( (this.simulation_case === "HONEST-CASE") || (this.simulation_case === "DISHONEST-CASE") ) && ( (this.simulation_mode === "REGULAR-MODE") || (this.simulation_mode === "AUTOMATIC-MODE") ) ) {
 
-            // Add request to automated_verifier_1
-            this.simulation_params.characters.verifiers.automated_v1.request.selected_edge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
-            this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness = [Simulation.getRandomInt(1,2), Simulation.getRandomInt(1,2)];
+            if(user_request === {}) {
 
-        } else {
-
-            // Check if edge exists
-            if(this.includesEdge(user_request.edge)) {
-
-                // Add user request edge to verifier_1
-                this.simulation_params.characters.verifiers.automated_v1.request.selected_edge = user_request.edge;
-
-                // Add user r values to verifier_1
-                this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness = user_request.edge_randomness;
+                // Add request to automated_verifier_1
+                this.simulation_params.characters.verifiers.automated_v1.request.selected_edge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
+                this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness = [Simulation.getRandomInt(1,2), Simulation.getRandomInt(1,2)];
 
             } else {
 
-                alert("Please pick a valid edge!");
+                // Check if edge exists
+                if(this.includesEdge(user_request.edge)) {
 
+                    // Add user request edge to verifier_1
+                    this.simulation_params.characters.verifiers.automated_v1.request.selected_edge = user_request.edge;
+
+                    // Add user r values to verifier_1
+                    this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness = user_request.edge_randomness;
+
+                } else {
+                    console.log("Please pick a valid edge!");
+                    alert("Please pick a valid edge!");
+
+                }
             }
-        }
 
-        switch (test_case) {
+            switch (test_case) {
 
-            case "REQUEST":
+                case "REQUEST":
 
-                console.log("TEST-CASE: REQUEST");
+                    console.log("TEST-CASE: REQUEST");
 
-                // Add request to automated_verifier_2
-                this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
-                this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness = [Simulation.getRandomInt(1,2), Simulation.getRandomInt(1,2)];
+                    // Add request to automated_verifier_2
+                    this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
+                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness = [Simulation.getRandomInt(1,2), Simulation.getRandomInt(1,2)];
 
-                // Provers update their pre-agreed coloring
-                this.simulation_params.coloring = this.update3Coloring();
+                    // Provers update their pre-agreed coloring
+                    this.simulation_params.coloring = this.update3Coloring();
 
-                // Provers generate commit values for each verifier request
-                this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
-                this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
-                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
-                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
+                    // Provers generate commit values for each verifier request
+                    this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
+                    this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
+                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
+                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
 
-                // Temp variables for verifier nodes
-                let i      = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0];
-                let j      = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1];
-                let ip     = this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0];
-                let jp     = this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1];
-                let i_r    = this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0];
-                let j_s    = this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1];
-                let ip_r   = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0];
-                let jp_s   = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1];
-                let com_i  = this.simulation_params.characters.provers.automated_p1.commit.node_i;
-                let com_j  = this.simulation_params.characters.provers.automated_p1.commit.node_j;
-                let com_ip = this.simulation_params.characters.provers.automated_p2.commit.node_ip;
-                let com_jp = this.simulation_params.characters.provers.automated_p2.commit.node_jp;
+                    // Temp variables for verifier nodes
+                    let i      = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0];
+                    let j      = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1];
+                    let ip     = this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0];
+                    let jp     = this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1];
+                    let i_r    = this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0];
+                    let j_s    = this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1];
+                    let ip_r   = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0];
+                    let jp_s   = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1];
+                    let com_i  = this.simulation_params.characters.provers.automated_p1.commit.node_i;
+                    let com_j  = this.simulation_params.characters.provers.automated_p1.commit.node_j;
+                    let com_ip = this.simulation_params.characters.provers.automated_p2.commit.node_ip;
+                    let com_jp = this.simulation_params.characters.provers.automated_p2.commit.node_jp;
 
-                // Go through protocol cases and output result
-                if (this.testEdgeVerification([i, j], [ip, jp], [i_r, j_s], [ip_r, jp_s], [com_i, com_j], [com_ip, com_jp])) {
+                    // Go through protocol cases and output result
+                    if (this.testEdgeVerification([i, j], [ip, jp], [i_r, j_s], [ip_r, jp_s], [com_i, com_j], [com_ip, com_jp])) {
 
-                    this.simulation_params.result.node_colorings = [[i, this.getNodeColor(i)], [j, this.getNodeColor(j)]];
+                        this.simulation_params.result.node_colorings = [[i, this.getNodeColor(i)], [j, this.getNodeColor(j)]];
+                        this.simulation_params.result.edge_verification_status = true;
+                        this.simulation_params.result.well_definition_status = false;
+
+                    } else if (this.testWellDefinition([i, j], [ip, jp], [i_r, j_s], [ip_r, jp_s], [com_i, com_j], [com_ip, com_jp])) {
+
+                        this.simulation_params.result.edge_verification_status = false;
+                        this.simulation_params.result.well_definition_status = true;
+
+                    } else if ((Simulation.checkIntersection([i, j], [ip, jp]) === i) && (i_r !== ip_r)) {
+
+                        this.simulation_params.result.edge_verification_status = false;
+                        this.simulation_params.result.well_definition_status = false;
+                        this.simulation_params.result.node_colorings = [[i, this.getNodeColor(i)]];
+
+                    } else if ((Simulation.checkIntersection([i, j], [ip, jp]) === j) && (j_s !== jp_s)) {
+
+                        this.simulation_params.result.edge_verification_status = false;
+                        this.simulation_params.result.well_definition_status = false;
+                        this.simulation_params.result.node_colorings = [[j, this.getNodeColor(j)]];
+
+                    } else {
+
+                        // Edges are disjoint
+                        this.simulation_params.result.edge_verification_status = false;
+                        this.simulation_params.result.well_definition_status = false;
+                        this.simulation_params.result.node_colorings = null;
+
+                    }
+
+                    break;
+
+                case "FORCED-EDGE-VERIFICATION":
+
+                    console.log("TEST-CASE: FORCED-EDGE-VERIFICATION");
+
+                    // Provide the same edge to automated_verifier_2
+                    this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = user_request.edge;
+
+                    // Force randomness values for automated_verifier_2
+                    if (user_request.edge_randomness[0] === user_request.edge_randomness[1]) {
+
+                        this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = 3 - user_request.edge_randomness[0];
+                        this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0];
+
+                    } else {
+
+                        this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = user_request.edge_randomness[1];
+                        this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = user_request.edge_randomness[0];
+
+                    }
+
+                    // Provers update their pre-agreed coloring
+                    this.simulation_params.coloring = this.update3Coloring();
+
+                    // Provers generate commit values for each verifier request
+                    this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
+                    this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
+                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
+                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
+
+                    // Temp variables
+                    let i_FEV = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0];
+                    let j_FEV = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1];
+
+                    // Output result - Bypassing edge-verification test because it is forced, so it will therefore automatically comply to the test
+                    this.simulation_params.result.node_colorings = [[i_FEV, this.getNodeColor(i_FEV)], [j_FEV, this.getNodeColor(j_FEV)]];
                     this.simulation_params.result.edge_verification_status = true;
                     this.simulation_params.result.well_definition_status = false;
 
-                } else if (this.testWellDefinition([i, j], [ip, jp], [i_r, j_s], [ip_r, jp_s], [com_i, com_j], [com_ip, com_jp])) {
+                    break;
 
-                    this.simulation_params.result.edge_verification_status = false;
-                    this.simulation_params.result.well_definition_status = true;
+                case "FORCED-WELL-DEFINITION":
 
-                } else if ((Simulation.checkIntersection([i, j], [ip, jp]) === i) && (i_r !== ip_r)) {
+                    console.log("TEST-CASE: FORCED-WELL-DEFINITION");
 
-                    this.simulation_params.result.edge_verification_status = false;
-                    this.simulation_params.result.well_definition_status = false;
-                    this.simulation_params.result.node_colorings = [i, this.getNodeColor(i)];
+                    // Force the randomness to be the same for corresponding nodes to automated_verifier_2
+                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = user_request.edge_randomness[0];
+                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = user_request.edge_randomness[1];
 
-                } else if ((Simulation.checkIntersection([i, j], [ip, jp]) === j) && (j_s !== jp_s)) {
+                    // Provers update their pre-agreed coloring
+                    this.simulation_params.coloring = this.update3Coloring();
 
-                    this.simulation_params.result.edge_verification_status = false;
-                    this.simulation_params.result.well_definition_status = false;
-                    this.simulation_params.result.node_colorings = [j, this.getNodeColor(j)];
+                    // Generate the commit value for the user-chosen edge
+                    this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
+                    this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
 
-                } else {
+                    let check = -1;
+                    while (check === -1) {
+                        console.log("In loop");
+                        // Pick and edge for the automated_verifier_2 such that it is either the same edge or intersects one of the nodes
+                        let randomEdge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
+                        let collision = Simulation.checkEdgeCollision(user_request.edge, randomEdge);
 
-                    // Edges are disjoint
-                    this.simulation_params.result.edge_verification_status = false;
-                    this.simulation_params.result.well_definition_status = false;
-                    this.simulation_params.result.node_colorings = null;
-
-                }
-
-                break;
-
-            case "FORCED-EDGE-VERIFICATION":
-
-                console.log("TEST-CASE: FORCED-EDGE-VERIFICATION");
-
-                // Provide the same edge to automated_verifier_2
-                this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = user_request.edge;
-
-                // Force randomness values for automated_verifier_2
-                if (user_request.edge_randomness[0] === user_request.edge_randomness[1]) {
-
-                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = 3 - user_request.edge_randomness[0];
-                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0];
-
-                } else {
-
-                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = user_request.edge_randomness[1];
-                    this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = user_request.edge_randomness[0];
-
-                }
-
-                // Provers update their pre-agreed coloring
-                this.simulation_params.coloring = this.update3Coloring();
-
-                // Provers generate commit values for each verifier request
-                this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
-                this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
-                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
-                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
-
-                // Temp variables
-                let i_FEV = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0];
-                let j_FEV = this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1];
-
-                // Output result - Bypassing edge-verification test because it is forced, so it will therefore automatically comply to the test
-                this.simulation_params.result.node_colorings = [[i_FEV, this.getNodeColor(i_FEV)], [j_FEV, this.getNodeColor(j_FEV)]];
-                this.simulation_params.result.edge_verification_status = true;
-                this.simulation_params.result.well_definition_status = false;
-
-                break;
-
-            case "FORCED-WELL-DEFINITION":
-
-                console.log("TEST-CASE: FORCED-WELL-DEFINITION");
-
-                // Force the randomness to be the same for corresponding nodes to automated_verifier_2
-                this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0] = user_request.edge_randomness[0];
-                this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1] = user_request.edge_randomness[1];
-
-                // Provers update their pre-agreed coloring
-                this.simulation_params.coloring = this.update3Coloring();
-
-                // Generate the commit value for the user-chosen edge
-                this.simulation_params.characters.provers.automated_p1.commit.node_i = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[0]);
-                this.simulation_params.characters.provers.automated_p1.commit.node_j = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v1.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v1.request.edge_randomness[1]);
-
-                let check = -1;
-                while (check === -1) {
-                    console.log("In loop");
-                    // Pick and edge for the automated_verifier_2 such that it is either the same edge or intersects one of the nodes
-                    let randomEdge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
-                    let collision = Simulation.checkEdgeCollision(user_request.edge, randomEdge);
-
-                    if (collision !== -1) {
-                        this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = randomEdge;
-                        this.simulation_params.result.edge_verification_status = false;
-                        this.simulation_params.result.well_definition_status = true;
-                    }
-
-                    switch (collision) {
-
-                        case 0:
-
-                            // Edges are equal
-                            this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_i;
-                            this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_j;
-                            this.simulation_params.result.forced_well_definition_intersection = user_request.edge;
-                            check = 0;
-                            break;
-
-                        case 1:
-
-                            if (randomEdge.indexOf(user_request.edge[0]) === 0) {
-
-                                // Node i and i' intersected
-                                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_i;
-                                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
-
-                            } else {
-
-                                // Node i and j' intersected
-                                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
-                                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_i;
-                            }
-
-                            this.simulation_params.result.forced_well_definition_intersection = [user_request.edge[0]];
-
-                            check = 1;
-                            break;
-
-                        case 2:
-
-                            if (randomEdge.indexOf(user_request.edge[1]) === 1) {
-
-                                // Node j and j' intersected
-                                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
-                                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_j;
-
-                            } else {
-
-                                // Node j and i' intersected
-                                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_j;
-                                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
-                            }
-
-                            this.simulation_params.result.forced_well_definition_intersection = [user_request.edge[1]];
-
-                            check = 2;
-                            break;
-
-                        case -1:
+                        if (collision !== -1) {
+                            this.simulation_params.characters.verifiers.automated_v2.request.selected_edge = randomEdge;
                             this.simulation_params.result.edge_verification_status = false;
-                            this.simulation_params.result.well_definition_status = false;
-                            check = -1;
-                            break;
+                            this.simulation_params.result.well_definition_status = true;
+                        }
 
-                        default:
-                            alert("Something went terribly wrong, check the console logs!");
-                            console.log("Something went terribly wrong!");
+                        switch (collision) {
+
+                            case 0:
+
+                                // Edges are equal
+                                this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_i;
+                                this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_j;
+                                this.simulation_params.result.forced_well_definition_intersection = user_request.edge;
+                                check = 0;
+                                break;
+
+                            case 1:
+
+                                if (randomEdge.indexOf(user_request.edge[0]) === 0) {
+
+                                    // Node i and i' intersected
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_i;
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
+
+                                } else {
+
+                                    // Node i and j' intersected
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_i;
+                                }
+
+                                this.simulation_params.result.forced_well_definition_intersection = [user_request.edge[0]];
+
+                                check = 1;
+                                break;
+
+                            case 2:
+
+                                if (randomEdge.indexOf(user_request.edge[1]) === 1) {
+
+                                    // Node j and j' intersected
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[0], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.simulation_params.characters.provers.automated_p1.commit.node_j;
+
+                                } else {
+
+                                    // Node j and i' intersected
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_ip = this.simulation_params.characters.provers.automated_p1.commit.node_j;
+                                    this.simulation_params.characters.provers.automated_p2.commit.node_jp = this.generateCommitValue(this.simulation_params.characters.verifiers.automated_v2.request.selected_edge[1], this.simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
+                                }
+
+                                this.simulation_params.result.forced_well_definition_intersection = [user_request.edge[1]];
+
+                                check = 2;
+                                break;
+
+                            case -1:
+
+                                this.simulation_params.result.edge_verification_status = false;
+                                this.simulation_params.result.well_definition_status = false;
+                                check = -1;
+                                break;
+
+                            default:
+
+                                alert("Something went terribly wrong, check the console logs!");
+                                console.log("Something went terribly wrong!");
+                        }
                     }
-                }
-                break;
+                    break;
 
-            default:
-                console.log("No valid test-case chosen");
-                alert("Please choose a valid test-case!");
+                default:
+
+                    console.log("No valid test-case chosen");
+                    alert("Please choose a valid test-case!");
+            }
+
+        } else {
+            console.log("Please pick a case and/or mode!");
+            alert("Please pick a case and/or mode!");
         }
-
 
     }
 
@@ -696,12 +706,18 @@ class Simulation {
      * @return {Object}
      */
     runAutomaticSimulation(iterations) {
-        let simulations = [];
-        for(let i = 0; i < iterations; i++) {
-            this.runSingleSimulation();
-            simulations.push(this.simulation_params);
+
+        if ( ( (this.simulation_case === "HONEST-CASE") || (this.simulation_case === "DISHONEST-CASE") ) && (this.simulation_mode === "AUTOMATIC-MODE") ) {
+
+            for(let i = 0; i < iterations; i++) {
+                this.runSingleSimulation("REQUEST");
+                this.simulations.push(JSON.parse(JSON.stringify(this.simulation_params)));
+            }
+
+        } else {
+            alert("Please pick a case!");
+            console.log("Please pick a case!");
         }
-        return simulations;
     }
 
 }

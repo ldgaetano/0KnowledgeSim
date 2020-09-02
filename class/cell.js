@@ -1,6 +1,6 @@
 class Cell {
 
-    #color = "white";
+    #color = "white"; // Default color
 
     /**
      * Constructor for Cell instance.
@@ -15,7 +15,7 @@ class Cell {
         this.flags = {
             hover : true,
             clicked: false,
-            revealed: false
+            revealed: false,
         };
         this.radius = 20;
     }
@@ -50,7 +50,7 @@ class Cell {
         sketch.push();
         sketch.stroke(0);
         sketch.strokeWeight(2);
-        sketch.fill(255);
+        sketch.fill("white");
 
         if (this.flags.hover) {
             sketch.fill('purple');
@@ -80,8 +80,18 @@ class Cell {
     }
 
     /**
+     * Reset the cell color to its original color.
+     */
+    resetCell() {
+        this.#color = "White";
+        this.flags.hover = false;
+        this.flags.clicked = false;
+        this.flags.revealed = false;
+    }
+
+    /**
      * Change the reveal color of the Cell instance.
-     * @param {number} color
+     * @param {string} color
      */
     setCellColor(color) {
         this.#color = color;

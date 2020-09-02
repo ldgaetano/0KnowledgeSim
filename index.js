@@ -5,7 +5,6 @@ console.log("McGill University 2020 \n");
 /*
     Global Variables
  */
-
 let requestClicked = false;
 
 let entitySelectedIndex = -1;
@@ -49,21 +48,16 @@ let graph_params = {
         E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]],
         compute_E: [[0,6], [0,7], [6,7], [1,7], [7,8], [1,8], [1,4], [2,8], [8,9], [2,9], [2,5], [9,10], [3,9], [3,10], [10,11], [4,10], [4,11], [5,11], [6,11], [5,6]]
     },
-    graph_colors: {0: "red", 1: "green", 2: "blue"}
+    graph_colors: {0: "brown", 1: "yellow", 2: "blue"}
 }
 
 // Simulation Instance and DisplayGraph Instance
+let iterations = 100;
+let frameRate = 30;
 let zerosim = new Simulation("Zero-Knowledge-Sim", 0, graph_params.graph, graph_params.graph_colors);
 let displaygraph = new DisplayGraph("Star Graph", 0, "Star", 86.6, 250, 86.6, 50, graph_params.graph, graph_params.graph_colors);
 
-/*
-Color value is based on index of graphCol array:
-    Index 0 = "red"
-    Index 1 = "green"
-    Index 2 = "blue"
- */
-
-let graphCol = {"red": 0, "green": 1, "blue": 2};
+let graphCol = {"brown": 0, "yellow": 1, "blue": 2};
 graphCol[0]
 
 console.log("COLOR CODE: 0 => RED, 1 => GREEN, 2 => BLUE");
@@ -87,6 +81,10 @@ let buttons = {
         honest_case: null,
         dishonest_case: null,
     },
+    modes: {
+      regular_mode: null,
+      automatic_mode: null
+    },
     tests: {
         request: null,
         edge_verification: null,
@@ -102,7 +100,9 @@ let buttons = {
 let text = {
     instructions: {
         instruction_1: null,
-        instruction_2: null
+        instruction_2: null,
+        instruction_3: null,
+        instruction_4: null
     },
     user_select: {
         node_i_r: null,
@@ -118,18 +118,18 @@ let text = {
         node_ip_r: null,
         node_jp_s: null,
         result: null,
-        init: "-"
-    },
-    commits: {
-        node_i: null,
-        node_j: null,
-        node_ip: null,
-        node_jp: null
+        init: "-",
+        commits: {
+            node_i: null,
+            node_j: null,
+            node_ip: null,
+            node_jp: null
+        }
     }
 };
 
 /*
-User Options Canvas
+    User Options Canvas
  */
 let options = new p5(s1 => {
 
@@ -137,22 +137,77 @@ let options = new p5(s1 => {
     s1.setup = () => {
         //console.log(text.table.init);
         let canvUser = s1.createCanvas(1200, 300);
+        s1.frameRate(frameRate);
 
         // Instructions to user
         {
-            text.instructions.instruction_1 = s1.createElement("h3", "Please choose 2 adjacent nodes with appropriate r and s values");
-            text.instructions.instruction_1.position(20, 1);
+            text.instructions.instruction_1 = s1.createElement("h5", "1. Choose a case:");
+            text.instructions.instruction_1.position(20, 0);
 
-            text.instructions.instruction_2 = s1.createElement("h3", "Please choose nodes in ascending order");
-            text.instructions.instruction_2.position(20, 25);
+            text.instructions.instruction_2 = s1.createElement("h5", "2. Choose a mode:");
+            text.instructions.instruction_2.position(text.instructions.instruction_1.x, text.instructions.instruction_1.y + 50);
+
+            text.instructions.instruction_3 = s1.createElement("h5", "3. Regular Mode - Choose 2 nodes with r and s values:");
+            text.instructions.instruction_3.position(text.instructions.instruction_2.x, text.instructions.instruction_2.y + 50);
+
+            text.instructions.instruction_4 = s1.createElement("h5", "4. Regular Mode - Action:");
+            text.instructions.instruction_4.position(text.instructions.instruction_3.x, text.instructions.instruction_3.y + 50);
+        }
+
+        // Honest prover button
+        {
+            buttons.cases.honest_case = s1.createButton('Honest Prover');
+            buttons.cases.honest_case.position(150, 20);
+            buttons.cases.honest_case.style('font-size', '14px');
+            buttons.cases.honest_case.style('background-color', s1.color(255));
+            buttons.cases.honest_case.style('color: black');
+            buttons.cases.honest_case.mouseClicked(() => {
+                caseButtonClicked("HONEST-CASE");
+            });
+        }
+
+        // Dishonest prover button
+        {
+            buttons.cases.dishonest_case = s1.createButton('Dishonest Prover');
+            buttons.cases.dishonest_case.position(265, buttons.cases.honest_case.y);
+            buttons.cases.dishonest_case.style('font-size', '14px');
+            buttons.cases.dishonest_case.style('background-color', s1.color(255));
+            buttons.cases.dishonest_case.style('color: black');
+            buttons.cases.dishonest_case.mouseClicked(() => {
+                caseButtonClicked("DISHONEST-CASE");
+            });
+        }
+
+        // Regular Mode button
+        {
+            buttons.modes.regular_mode = s1.createButton('Regular');
+            buttons.modes.regular_mode.position(150, 70);
+            buttons.modes.regular_mode.style('font-size', '14px');
+            buttons.modes.regular_mode.style('background-color', s1.color(255));
+            buttons.modes.regular_mode.style('color: black');
+            buttons.modes.regular_mode.mouseClicked(() => {
+                modeButtonClicked("REGULAR-MODE");
+            });
+        }
+
+        // Automatic Mode button
+        {
+            buttons.modes.automatic_mode = s1.createButton('Automatic');
+            buttons.modes.automatic_mode.position(buttons.modes.regular_mode.x + 75, buttons.modes.regular_mode.y);
+            buttons.modes.automatic_mode.style('font-size', '14px');
+            buttons.modes.automatic_mode.style('background-color', s1.color(255));
+            buttons.modes.automatic_mode.style('color: black');
+            buttons.modes.automatic_mode.mouseClicked(() => {
+                modeButtonClicked("AUTOMATIC-MODE");
+            });
         }
 
         // Randomness options text
         {
-            text.user_select.node_i_r = s1.createElement("h4", "r");
-            text.user_select.node_j_s = s1.createElement("h4", "s");
-            text.user_select.node_i_r.position(30, 60);
-            text.user_select.node_j_s.position(120, 60);
+            text.user_select.node_i_r = s1.createElement("h5", "r");
+            text.user_select.node_j_s = s1.createElement("h5", "s");
+            text.user_select.node_i_r.position(375, 100);
+            text.user_select.node_j_s.position(425, 100);
         }
 
         // Randomness select buttons
@@ -160,8 +215,8 @@ let options = new p5(s1 => {
             buttons.user_select.node_i_r = s1.createSelect();
             buttons.user_select.node_j_s = s1.createSelect();
 
-            buttons.user_select.node_i_r.position(45, 80);
-            buttons.user_select.node_j_s.position(buttons.user_select.node_i_r.x + 90, buttons.user_select.node_i_r.y);
+            buttons.user_select.node_i_r.position(385, 120);
+            buttons.user_select.node_j_s.position(435, 120);
 
             buttons.user_select.node_i_r.option('1');
             buttons.user_select.node_i_r.option('2');
@@ -170,91 +225,62 @@ let options = new p5(s1 => {
             buttons.user_select.node_j_s.option('2');
         }
 
-        // Honest prover button
-        {
-            buttons.cases.honest_case = s1.createButton('Honest Prover Case');
-            buttons.cases.honest_case.position(20, 120);
-            buttons.cases.honest_case.style('font-size', '20px');
-            buttons.cases.honest_case.style('background-color', s1.color(255));
-            buttons.cases.honest_case.style('color: black');
-            buttons.cases.honest_case.mouseClicked(() => {
-                honestButtonClicked();
-            });
-        }
-
-        // Dishonest prover button
-        {
-            buttons.cases.dishonest_case = s1.createButton('Dishonest Prover Case');
-            buttons.cases.dishonest_case.position(buttons.cases.honest_case.x + 280, buttons.cases.honest_case.y);
-            buttons.cases.dishonest_case.style('font-size', '20px');
-            buttons.cases.dishonest_case.style('background-color', s1.color(255));
-            buttons.cases.dishonest_case.style('color: black');
-            buttons.cases.dishonest_case.mouseClicked(() => {
-                dishonestButtonClicked();
-            });
-        }
 
         // Request button
         {
             buttons.tests.request = s1.createButton('Request');
-            buttons.tests.request.position(210, buttons.cases.honest_case.y + buttons.cases.honest_case.height + 20);
-            buttons.tests.request.style('font-size', '20px');
+            buttons.tests.request.position(190, 170);
+            buttons.tests.request.style('font-size', '14px');
             buttons.tests.request.style('background-color', s1.color(255));
             buttons.tests.request.style('color: black');
             buttons.tests.request.id('comButton');
             buttons.tests.request.mouseClicked(() => {
-                requestButtonClicked();
+                testButtonClicked("REQUEST");
             });
-            // buttons.tests.request.mouseClicked(() => {
-            //     request_update();
-            //     requestClicked = true;
-            // })
         }
 
         // Edge verification button
         {
             buttons.tests.edge_verification = s1.createButton('Edge Verification Test');
-            buttons.tests.edge_verification.position(160, buttons.tests.request.y + buttons.tests.request.height + 10);
-            buttons.tests.edge_verification.style('font-size', '20px');
+            buttons.tests.edge_verification.position(190, buttons.tests.request.y + buttons.tests.request.height + 10);
+            buttons.tests.edge_verification.style('font-size', '14px');
             buttons.tests.edge_verification.style('background-color', s1.color(255));
             buttons.tests.edge_verification.style('color: black');
             buttons.tests.edge_verification.mouseClicked(() => {
-                edgeVerificationButtonClicked();
-                //edge_update();
-                //requestClicked = true;
+                testButtonClicked("FORCED-EDGE-VERIFICATION");
             });
         }
 
         // Well definition button
         {
             buttons.tests.well_definition = s1.createButton('Well-Definition Test');
-            buttons.tests.well_definition.position(170, buttons.tests.edge_verification.y + buttons.tests.edge_verification.height + 20);
-            buttons.tests.well_definition.style('font-size', '20px');
+            buttons.tests.well_definition.position(190, buttons.tests.edge_verification.y + buttons.tests.edge_verification.height + 10);
+            buttons.tests.well_definition.style('font-size', '14px');
             buttons.tests.well_definition.style('background-color', s1.color(255));
             buttons.tests.well_definition.style('color: black');
             buttons.tests.well_definition.mouseClicked(() => {
-                wellDefinitionButtonClicked();
-                //well_update();
-                //requestClicked = true;
+               testButtonClicked("FORCED-WELL-DEFINITION");
             });
         }
 
         // Output table
         {
-            text.table.prover_1 = s1.createElement('h4', "Prover 1");
+            text.table.prover_1 = s1.createElement('h5', "Prover 1");
             text.table.prover_1.position(600, 40);
-            text.table.prover_2 = s1.createElement('h4', "Prover 2");
+
+            text.table.prover_2 = s1.createElement('h5', "Prover 2");
             text.table.prover_2.position(600, text.table.prover_1.y + text.table.prover_1.height * 2);
         }
 
         // Output table node names
         {
-            text.table.node_i = s1.createElement('h4', "Node i");
-            text.table.node_j = s1.createElement('h4', "Node j");
-            text.table.node_ip = s1.createElement('h4', "Node i'");
-            text.table.node_jp = s1.createElement('h4', "Node j'");
-            text.table.node_ip_r = s1.createElement('h4', "r'");
-            text.table.node_jp_s = s1.createElement('h4', "s'");
+            text.table.node_i = s1.createElement('h5', "Node i");
+            text.table.node_j = s1.createElement('h5', "Node j");
+            text.table.node_ip = s1.createElement('h5', "Node i'");
+            text.table.node_jp = s1.createElement('h5', "Node j'");
+            text.table.node_ip_r = s1.createElement('h5', "r'");
+            text.table.node_jp_s = s1.createElement('h5', "s'");
+
             text.table.node_i.position(700, 5);
             text.table.node_j.position(800, 5);
             text.table.node_ip.position(900, 5);
@@ -265,17 +291,17 @@ let options = new p5(s1 => {
 
         // Output table commit values for each node
         {
-            text.commits.node_i = s1.createElement('h4', text.table.init);
-            text.commits.node_i.position(text.table.node_i.x, text.table.prover_1.y);
+            text.table.commits.node_i = s1.createElement('h5', text.table.init);
+            text.table.commits.node_i.position(text.table.node_i.x, text.table.prover_1.y);
 
-            text.commits.node_j = s1.createElement('h4', text.table.init);
-            text.commits.node_j.position(text.table.node_j.x, text.table.prover_1.y);
+            text.table.commits.node_j = s1.createElement('h5', text.table.init);
+            text.table.commits.node_j.position(text.table.node_j.x, text.table.prover_1.y);
 
-            text.commits.node_ip = s1.createElement('h4', text.table.init);
-            text.commits.node_ip.position(text.table.node_ip.x, text.table.prover_2.y);
+            text.table.commits.node_ip = s1.createElement('h5', text.table.init);
+            text.table.commits.node_ip.position(text.table.node_ip.x, text.table.prover_2.y);
 
-            text.commits.node_jp = s1.createElement('h4', text.table.init);
-            text.commits.node_jp.position(text.table.node_jp.x, text.table.prover_2.y);
+            text.table.commits.node_jp = s1.createElement('h5', text.table.init);
+            text.table.commits.node_jp.position(text.table.node_jp.x, text.table.prover_2.y);
 
             // if (simulation_params.requests.user_request.user_selected_nodes[0] == null || simulation_params.requests.user_request.user_selected_nodes[1] == null) {
             //     n1.html("Node i");
@@ -293,25 +319,172 @@ let options = new p5(s1 => {
 
     };
 
-    /*
-    Function called when request button clicked
-     */
-    function requestButtonClicked() {
+    s1.draw = () => {
+        s1.background(220);
 
-        let user_selected_request = {
-            edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
-            edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
-        };
-
-        //displaygraph.requestSelected = true;
-        zerosim.runSingleSimulation(user_selected_request, "REQUEST");
-        console.log(zerosim.simulation_params);
-        // let request =
-        // request_update();
-        // requestClicked = true;
     }
 
-    function request_update() {
+    /**
+     * Display node information to table
+     * @param {Object} simulation_params Object that includes all of the simulation parameters.
+     */
+    function displayNodeInfoToTable( simulation_params ) {
+
+        // Display nodes chosen from both verifiers
+        text.table.node_i.html("Node i = " + simulation_params.characters.verifiers.automated_v1.request.selected_edge[0]);
+        text.table.node_j.html("Node j = " + simulation_params.characters.verifiers.automated_v1.request.selected_edge[1]);
+        text.table.node_ip.html("Node i' = " + simulation_params.characters.verifiers.automated_v2.request.selected_edge[0]);
+        text.table.node_jp.html("Node j' = " + simulation_params.characters.verifiers.automated_v2.request.selected_edge[1]);
+
+        // Display randomness values for automated_verifier_2
+        text.table.node_ip_r.html("r' = " + simulation_params.characters.verifiers.automated_v2.request.edge_randomness[0]);
+        text.table.node_jp_s.html("s' = " + simulation_params.characters.verifiers.automated_v2.request.edge_randomness[1]);
+
+        // Display verifiers accept or decline commit values based on edge-verification and well-definition tests
+        if (simulation_params.result.edge_verification_status || simulation_params.result.well_definition_status) {
+            text.table.commits.node_i.style('color', 'green');
+            text.table.commits.node_j.style('color', 'green');
+            text.table.commits.node_ip.style('color', 'green');
+            text.table.commits.node_jp.style('color', 'green');
+        } else {
+            text.table.commits.node_i.style('color', 'red');
+            text.table.commits.node_j.style('color', 'red');
+            text.table.commits.node_ip.style('color', 'red');
+            text.table.commits.node_jp.style('color', 'red');
+        }
+
+        // Display commit values
+        text.table.commits.node_i.html(simulation_params.characters.provers.automated_p1.commit.node_i);
+        text.table.commits.node_j.html(simulation_params.characters.provers.automated_p1.commit.node_j);
+        text.table.commits.node_ip.html(simulation_params.characters.provers.automated_p2.commit.node_ip);
+        text.table.commits.node_jp.html(simulation_params.characters.provers.automated_p2.commit.node_jp);
+
+    }
+
+    /**
+     * Display node information to graph
+     * @param {Object} simulation_params Object that includes all of the simulation parameters.
+     */
+    function displayNodeInfoToGraph( simulation_params ) {
+
+        displaygraph.resetDisplayGraphProperties();
+        displaygraph.resetDisplayGraphCells();
+
+        // Display node color if possible
+        let colorings = simulation_params.result.node_colorings;
+        if ( colorings ) {
+            for (let i = 0; i < colorings.length; i++) {
+                let cell = colorings[i][0];
+                let color = colorings[i][1];
+                displaygraph.revealCellColor(cell, color);
+            }
+        }
+    }
+
+    /**
+     * Method called when case button is clicked prover case button is clicked
+     * @param {string} CASE Case type, one of: "HONEST-CASE" | "DISHONEST-CASE"
+     */
+    function caseButtonClicked( CASE ) {
+
+        switch ( CASE ) {
+
+            case "HONEST-CASE":
+
+                zerosim.simulation_case = "HONEST-CASE";
+                zerosim.removeDishonestEdgeSTAR();
+                displaygraph.removeDishonestEdgeSTAR();
+                console.log("HONEST PROVER CASE");
+                break;
+
+            case "DISHONEST-CASE":
+
+                zerosim.simulation_case = "DISHONEST-CASE";
+                zerosim.addDishonestEdgeSTAR();
+                displaygraph.addDishonestEdgeSTAR();
+                console.log("DISHONEST PROVER CASE");
+                break;
+
+            default:
+
+                console.log("Pick a case!");
+                alert("Please pick a case!");
+        }
+    }
+
+    /**
+     * Function called when mode button is clicked.
+     * @param {string} MODE Mode type, one of: "REGULAR-MODE" | "AUTOMATIC-MODE"
+     */
+    function modeButtonClicked( MODE ) {
+
+        switch ( MODE ) {
+
+            case "REGULAR-MODE":
+
+                zerosim.simulation_mode = "REGULAR-MODE";
+                console.log("REGULAR-MODE");
+                break;
+
+            case "AUTOMATIC-MODE":
+
+                zerosim.simulation_mode = "AUTOMATIC-MODE";
+                console.log("AUTOMATIC MODE");
+
+                // Run the simulation
+                zerosim.runAutomaticSimulation(iterations);
+                console.log(zerosim.simulations);
+
+                // Display the node information data to the table
+                for (let i = 0; i < zerosim.simulations.length; i++) {
+
+                    setTimeout(function() {
+                        displayNodeInfoToTable(zerosim.simulations[i]);
+                    }, 500 * i);
+
+                }
+                break;
+
+            default:
+
+                console.log("Mode error!");
+                alert("Mode error!");
+        }
+    }
+
+    /**
+     * Method called when one of the three test buttons are clicked.
+     * @param {String} TEST Test type, one of: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
+     */
+    function testButtonClicked( TEST ) {
+
+        // Get the user request information
+
+        if (displaygraph.selected_cells.length === 0) {
+            console.log("Please select and edge!");
+            alert("Please select and edge!");
+        } else {
+
+            let user_selected_request = {
+                edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
+                edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
+            };
+
+            // Run the simulation
+            zerosim.runSingleSimulation(TEST, user_selected_request);
+            console.log(zerosim.simulation_params);
+
+            // Display the node information data to the table
+            displayNodeInfoToTable(zerosim.simulation_params);
+
+            // Display colors on display graph
+            displayNodeInfoToGraph(zerosim.simulation_params);
+
+        }
+
+    }
+
+    let request_update = () => {
 
         console.log("REQUEST");
 
@@ -456,22 +629,6 @@ let options = new p5(s1 => {
         }
         selectID = [];
     };
-
-    /*
-    Function called when edge verification test button clicked
-     */
-    function edgeVerificationButtonClicked() {
-
-      let user_selected_request = {
-          edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
-          edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
-      };
-
-      zerosim.runSingleSimulation(user_selected_request, "FORCED-EDGE-VERIFICATION");
-      console.log(zerosim.simulation_params);
-
-    }
-
     let edge_update = () => {
 
         checkEdge(selectID);
@@ -547,22 +704,6 @@ let options = new p5(s1 => {
         console.log("Edges are the same!");
 
     };
-
-    /*
-    Function called when well definition test button clicked
-     */
-    function wellDefinitionButtonClicked() {
-
-        let user_selected_request = {
-            edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
-            edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
-        };
-
-        zerosim.runSingleSimulation(user_selected_request, "FORCED-WELL-DEFINITION");
-        console.log(zerosim.simulation_params);
-
-    }
-
     let well_update = () => {
 
         checkEdge(selectID);
@@ -662,37 +803,18 @@ let options = new p5(s1 => {
         selectID = [];
     };
 
-    /*
-    Function called when dishonest prover case button is clicked
-     */
-    function dishonestButtonClicked() {
-        displaygraph.addDishonestEdgeSTAR();
-        zerosim.addDishonestEdgeSTAR();
-        console.log("DISHONEST PROVER CASE");
-    }
+    let honest_update = () => {
+        if (connections.length == 21) {
+            connections.pop(); // pop off c21 if it exists
+        }
 
+    };
     let dishonest_update = () => {
         // add edge
         // check if edge exists - if not, add the edge
         if (connections.length != 21) {
             c21 = new Connection(cell_1, cell_4);
             connections.push(c21);
-        }
-
-    };
-
-    /**
-     * Function called when the honest prover button is clicked
-     */
-    function honestButtonClicked() {
-        displaygraph.removeDishonestEdgeSTAR();
-        zerosim.removeDishonestEdgeSTAR();
-        console.log("HONEST PROVER CASE");
-    }
-
-    let honest_update = () => {
-        if (connections.length == 21) {
-            connections.pop(); // pop off c21 if it exists
         }
 
     };
@@ -751,11 +873,6 @@ let options = new p5(s1 => {
         // node j and j' intersect and have the same randomness
         com_j = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
         com_jp = checkModSum(b[intercs] * s0 + threeCol[randomIndex][intercs]);
-    }
-
-    s1.draw = () => {
-        s1.background(220);
-
     }
 
     /*
@@ -818,6 +935,7 @@ let graph = new p5(s2 => {
      * Function called on mouse click event.
      */
     s2.mouseClicked = function() {
+
         // Change node color and log selected nodes when clicking
         displaygraph.checkCellClicking(s2);
     };
@@ -1119,12 +1237,12 @@ let simulation = new p5(s3 => {
 
     s3.setup = function() {
         s3.createCanvas(500, 500);
-        s3.frameRate(30);
+        s3.frameRate(frameRate);
         s3.textSize(30);
 
-        v1 = new Verifier("V1", 0, v1_x, v1_y, char_diam, "blue", "P1", "V2", s3);
-        v2 = new Verifier("V2", 1, v2_x, v2_y, char_diam, "green", "P2", "V1", s3);
-        p1 = new Prover("P1", 0, p1_x, p1_y, char_diam, "yellow", "V1", "P2", s3);
+        v1 = new Verifier("V1", 0, v1_x, v1_y, char_diam, "purple", "P1", "V2", s3);
+        v2 = new Verifier("V2", 1, v2_x, v2_y, char_diam, "pink", "P2", "V1", s3);
+        p1 = new Prover("P1", 0, p1_x, p1_y, char_diam, "orange", "V1", "P2", s3);
         p2 = new Prover("P2", 1, p2_x, p2_y, char_diam, "black", "V2", "P1", s3);
 
         request_i1 = new RequestInfo("I1", 0, i1, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);

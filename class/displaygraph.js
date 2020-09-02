@@ -5,7 +5,7 @@ class DisplayGraph {
     selected_cells = null;    // Array containing Cell instances the selected cells.
     selected_cells_id = null; // Array containing ids of the selected cells.
     requestSelected;          // Flag to keep track if a request has been selected.
-    #dishonest_edge;           // Additional edge for the dishonest prover case.
+    #dishonest_edge;          // Additional edge for the dishonest prover case.
 
     /**
      * Constructor for DisplayGraph instance.
@@ -142,6 +142,24 @@ class DisplayGraph {
     }
 
     /**
+     * Reset the display graph properties.
+     */
+    resetDisplayGraphProperties() {
+        this.previous_cells = [];
+        this.selected_cells = [];
+        this.selected_cells_id = [];
+    }
+
+    /**
+     * Reset the cells in the display graph.
+     */
+    resetDisplayGraphCells() {
+        this.display_graph.cells.forEach(cell => {
+            cell.resetCell();
+        });
+    }
+
+    /**
      * Method called when the dishonest prover button is clicked. Will add the dishonest edge to the display_graph.
      */
     addDishonestEdgeSTAR() {
@@ -254,15 +272,22 @@ class DisplayGraph {
     }
 
     /**
+     * Reveal the cell color.
+     * @param {Number} cell
+     * @param {String} color
+     */
+    revealCellColor(cell, color) {
+        this.display_graph.cells[cell].flags.revealed = true;
+        this.display_graph.cells[cell].setCellColor(color);
+    }
+
+    /**
      * Change the flags of the previously selected cells
      */
     updatePreviousCellsFlags() {
         if (this.previous_cells.length > 0) {
             this.previous_cells.forEach(cell => {
-                cell.flags.revealed = false;
-                cell.flags.clicked = false;
-                cell.flags.hover = false;
-                cell.revealCol = 255;
+                cell.resetCell();
             });
             this.previous_cells = [];
         }
