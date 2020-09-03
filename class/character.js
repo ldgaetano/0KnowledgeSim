@@ -69,13 +69,13 @@ class Character extends Ring {
             if (info.getID() === queued_info.getID()) {
                 queued = true;
             }
-        })
+        });
         this.#displayed_informations.forEach(displayed_info => {
             // Check if info is displayed already.
             if(info.getID() === displayed_info.getID()) {
                 displayed = true;
             }
-        })
+        });
         // If info is not in the queue or displayed, then add it to the queue.
         if ( !(displayed || queued) ) {
             this.#queued_informations.push(info);

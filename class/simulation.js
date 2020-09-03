@@ -21,13 +21,13 @@ class Simulation {
                     automated_v1: {
                         request: {
                             selected_edge: [],
-                            edge_randomness: [null, null]
+                            edge_randomness: []
                         }
                     },
                     automated_v2: {
                         request: {
                             selected_edge: [],
-                            edge_randomness: [null, null]
+                            edge_randomness: []
                         }
                     }
                 },
@@ -449,6 +449,18 @@ class Simulation {
         this.simulation_params.result.node_colorings = [];
     }
 
+    /**
+     * Check if JS object is empty
+     * @param {Object} object
+     */
+    static isObjectEmpty( object ) {
+        for(let prop in object) {
+            if(object.hasOwnProperty(prop))
+                return false;
+        }
+        return true;
+    }
+
 
     /**
      * Run one iteration of the simulation. Assume input edges are sorted in ascending order.
@@ -461,7 +473,7 @@ class Simulation {
 
         if ( ( (this.simulation_case === "HONEST-CASE") || (this.simulation_case === "DISHONEST-CASE") ) && ( (this.simulation_mode === "REGULAR-MODE") || (this.simulation_mode === "AUTOMATIC-MODE") ) ) {
 
-            if(user_request === {}) {
+            if(Simulation.isObjectEmpty(user_request)) {
 
                 // Add request to automated_verifier_1
                 this.simulation_params.characters.verifiers.automated_v1.request.selected_edge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];

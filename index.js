@@ -35,9 +35,11 @@ const p2_x = 400;
 const p2_y = 400;
 
 // requests
+let request_sent_toggle = false;
+let automatic_request_sent_toggle = false;
 const info_diam = 0;
 const info_speed = 3;
-const gen_request_color = "red";
+//const gen_request_color = "red";
 const user_request_name = "User Request";
 
 // Input graph parameters
@@ -236,6 +238,7 @@ let options = new p5(s1 => {
             buttons.tests.request.id('comButton');
             buttons.tests.request.mouseClicked(() => {
                 testButtonClicked("REQUEST");
+
             });
         }
 
@@ -259,7 +262,7 @@ let options = new p5(s1 => {
             buttons.tests.well_definition.style('background-color', s1.color(255));
             buttons.tests.well_definition.style('color: black');
             buttons.tests.well_definition.mouseClicked(() => {
-               testButtonClicked("FORCED-WELL-DEFINITION");
+                testButtonClicked("FORCED-WELL-DEFINITION");
             });
         }
 
@@ -320,6 +323,7 @@ let options = new p5(s1 => {
     };
 
     s1.draw = () => {
+
         s1.background(220);
 
     }
@@ -367,6 +371,7 @@ let options = new p5(s1 => {
      */
     function displayNodeInfoToGraph( simulation_params ) {
 
+        // Reset the display graph
         displaygraph.resetDisplayGraphProperties();
         displaygraph.resetDisplayGraphCells();
 
@@ -435,14 +440,23 @@ let options = new p5(s1 => {
                 zerosim.runAutomaticSimulation(iterations);
                 console.log(zerosim.simulations);
 
+                // Change the automatic request toggle
+                automatic_request_sent_toggle = true;
+
                 // Display the node information data to the table
                 for (let i = 0; i < zerosim.simulations.length; i++) {
 
                     setTimeout(function() {
+                        // Display the node information data to the table
                         displayNodeInfoToTable(zerosim.simulations[i]);
+
+                        // Display colors on display graph
+                        displayNodeInfoToGraph(zerosim.simulations[i]);
                     }, 500 * i);
 
                 }
+
+
                 break;
 
             default:
@@ -458,13 +472,13 @@ let options = new p5(s1 => {
      */
     function testButtonClicked( TEST ) {
 
-        // Get the user request information
-
+        // Check if and edge has been selected
         if (displaygraph.selected_cells.length === 0) {
             console.log("Please select and edge!");
             alert("Please select and edge!");
         } else {
 
+            // Get the user request information
             let user_selected_request = {
                 edge: Simulation.sort_ascending(displaygraph.selected_cells_id),
                 edge_randomness: [parseInt(buttons.user_select.node_i_r.value()), parseInt(buttons.user_select.node_j_s.value())]
@@ -474,11 +488,15 @@ let options = new p5(s1 => {
             zerosim.runSingleSimulation(TEST, user_selected_request);
             console.log(zerosim.simulation_params);
 
+            // Change the request toggle
+            request_sent_toggle = true;
+
             // Display the node information data to the table
             displayNodeInfoToTable(zerosim.simulation_params);
 
             // Display colors on display graph
             displayNodeInfoToGraph(zerosim.simulation_params);
+
 
         }
 
@@ -923,10 +941,12 @@ Graph Canvas
 let graph = new p5(s2 => {
 
     s2.setup = () => {
+
         let graph_canv = s2.createCanvas(500, 500);
     };
 
     s2.draw = () => {
+
         s2.background(220);
         displaygraph.renderDisplayGraph(s2);
     };
@@ -1236,24 +1256,26 @@ let simulation = new p5(s3 => {
     let reset_button;
 
     s3.setup = function() {
+
         s3.createCanvas(500, 500);
         s3.frameRate(frameRate);
         s3.textSize(30);
 
+        // Defining the characters
         v1 = new Verifier("V1", 0, v1_x, v1_y, char_diam, "purple", "P1", "V2", s3);
         v2 = new Verifier("V2", 1, v2_x, v2_y, char_diam, "pink", "P2", "V1", s3);
         p1 = new Prover("P1", 0, p1_x, p1_y, char_diam, "orange", "V1", "P2", s3);
         p2 = new Prover("P2", 1, p2_x, p2_y, char_diam, "black", "V2", "P1", s3);
 
-        request_i1 = new RequestInfo("I1", 0, i1, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
-        request_i2 = new RequestInfo("I2", 1, i2, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
-        request_i3 = new RequestInfo("I3", 0, i3, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
-        request_i4 = new RequestInfo("I4", 1, i4, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
-
-        v1_requests = [request_i1, request_i2];
-        v2_requests = [request_i3, request_i4];
-        v1.addInformation(v1_requests);
-        v2.addInformation(v2_requests);
+        // request_i1 = new RequestInfo("I1", 0, i1, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
+        // request_i2 = new RequestInfo("I2", 1, i2, v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, v1.getColor(), s3);
+        // request_i3 = new RequestInfo("I3", 0, i3, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
+        // request_i4 = new RequestInfo("I4", 1, i4, v2.getCenterX(), v2.getCenterY(), info_diam, info_speed, v2.getColor(), s3);
+        //
+        // v1_requests = [request_i1, request_i2];
+        // v2_requests = [request_i3, request_i4];
+        // v1.addInformation(v1_requests);
+        // v2.addInformation(v2_requests);
 
         verifiers = [v1, v2];
         provers = [p1, p2];
@@ -1267,25 +1289,46 @@ let simulation = new p5(s3 => {
     };
 
     s3.draw = function() {
+
         s3.background(220);
         s3.text(s3.frameCount, 500, 50);
+
+        // Display characters
         displayVerifiers();
         displayProvers();
+
+        // Check test has been chosen by user
+        if ( request_sent_toggle ) {
+            addInfoFromTestButton();
+            request_sent_toggle = false;
+        }
+
+        // Check if automatic mode was chosen by user
+        if ( automatic_request_sent_toggle ) {
+            for(let i = 0; i < iterations; i++) {
+                addInfoFromTestButton();
+            }
+            automatic_request_sent_toggle = false;
+        }
+
     };
 
     /**
-     * Generate and emit Information from Character instance when clicking on button.
+     * Generate and emit Information from Character instance when clicking on one of the test buttons.
      */
-    function addInfoFromRequestButton() {
-        v1.addSingleInformationFromUser(generateInformation());
+    function addInfoFromTestButton() {
+        v1.addSingleInformationFromUser(generateInformation(v1));
+        v2.addSingleInformationFromUser(generateInformation(v2));
     }
 
     /**
      * Generate some dummy RequestInfo instances.
+     * @param   {Character}   character
+     * @param   {String}      color
      * @returns {RequestInfo}
      */
-    function generateInformation() {
-        return new RequestInfo(user_request_name, s3.random(), [s3.random(), s3.random(), s3.random(), s3.random()], v1.getCenterX(), v1.getCenterY(), info_diam, info_speed, gen_request_color, s3);
+    function generateInformation(character) {
+        return new RequestInfo(user_request_name, s3.random(), [s3.random(), s3.random(), s3.random(), s3.random()], character.getCenterX(), character.getCenterY(), info_diam, info_speed, character.getColor(), s3);
     }
 
     /**
@@ -1294,10 +1337,13 @@ let simulation = new p5(s3 => {
     function resetSimulation() {
         s3.noLoop();
         for(let i in characters) {
+
             let char = characters[i];
+
             // Reset the position.
             char.setCenterX(char.getInitCenterX());
             char.setCenterY(char.getInitCenterY());
+
             // Reset the information.
             char.resetQueuedInformation();
             char.resetDisplayedInformation();
@@ -1317,6 +1363,7 @@ let simulation = new p5(s3 => {
                 // Check for commits from paired provers.
                 for(let j in provers) {
                     let prover = provers[j];
+
                     // Check if verifier and prover are linked together.
                     if (verifier.isProverLinked(prover)) {
                         verifier.scanForCommits(prover.getDisplayedInformations());
@@ -1326,6 +1373,7 @@ let simulation = new p5(s3 => {
                 // Check for requests from paired verifiers.
                 for(let k in verifiers) {
                     let compare_verifier = verifiers[k];
+
                     // Check if verifier pairs are linked together.
                     if (verifier.isVerifierLinked(compare_verifier)) {
                         verifier.scanForPairedRequests(compare_verifier.getDisplayedInformations());
@@ -1380,7 +1428,6 @@ let simulation = new p5(s3 => {
     }
 
 }, "simulation-canvas-container");
-
 
 /*
 Helper Methods

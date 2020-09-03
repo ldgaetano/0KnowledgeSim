@@ -29,7 +29,7 @@ class Prover extends Character {
                     let commit;
                     // Check if request is user generated
                     if (Prover.isUserRequest(request)) {
-                        commit = this.generateCommitFromUserRequest(request, "purple");
+                        commit = this.generateCommitFromUserRequest(request, this.getColor());
                     } else {
                         commit = this.generateCommitFromRequest(request);
                     }
