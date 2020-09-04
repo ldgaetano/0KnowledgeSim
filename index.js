@@ -568,7 +568,7 @@ function modeButtonClicked( MODE ) {
 
 /**
  * Method called when one of the three test buttons are clicked.
- * @param {String} TEST Test type, one of: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
+ * @param {string} TEST Test type, one of: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
  */
 function testButtonClicked( TEST ) {
 
@@ -625,7 +625,7 @@ function addInfoFromTestButton() {
 /**
  * Generate some dummy RequestInfo instances.
  * @param   {Character}   character
- * @param   {String}      color
+ * @param   {string}      color
  * @returns {RequestInfo}
  */
 function generateInformation(character) {
