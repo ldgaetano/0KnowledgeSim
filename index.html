@@ -1,33 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lan="eng">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>0-Knowledge-Sim</title>
 
+    <!-- p5 library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.2/p5.js"></script>
+
+    <!-- 3rd party p5 libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/p5.collide2d"></script>
+
+    <!-- JS files -->
+    <script src="class/ring.js"></script>
+    <script src="class/information.js"></script>
+    <script src="class/commitinfo.js"></script>
+    <script src="class/requestinfo.js"></script>
+    <script src="class/character.js"></script>
+    <script src="class/prover.js"></script>
+    <script src="class/verifier.js"></script>
+    <script src="class/cell.js"></script>
+    <script src="class/connection.js"></script>
+    <script src="class/displaygraph.js"></script>
+    <script src="class/simulation.js"></script>
+
+    <script src="index.js"></script>
+
     <!-- CSS -->
     <link href="style.css" rel="stylesheet" type="text/css" />
 
-    <!-- p5 library -->
-    <script src="https://cdn.jsdelivr.net/npm/p5@0.10.2/lib/p5.min.js"></script>
-
-    <!-- graphlib package -->
-    <script src="https://dagrejs.github.io/project/graphlib/v2.1.2/graphlib.min.js"></script>
-
-    <!-- JS files -->
-    <script src="prover.js"></script>
-    <script src="verifier.js"></script>
-    <script src="index.js"></script>
-    <script src="cell.js"></script>
-    <script src="connection.js"></script>
-
 </head>
 <body>
-<!--<p> Please choose one of the following randomness: </p>-->
-<div id="user-canvas"></div>
-<div id="userG-canvas"></div>
-<div id="entity-canvas"></div>
-<div id="graph-canvas"></div>
+
+    <div id="user-canvas-container"></div>
+    <div id="graph-sim-canvas-outer-container">
+        <div id="graph-sim-canvas-inner-container">
+            <div id="graph-canvas-container"></div>
+            <div id="simulation-canvas-container"></div>
+        </div>
+    </div>
+
+
 
 </body>
 </html>
