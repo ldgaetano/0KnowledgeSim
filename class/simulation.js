@@ -622,7 +622,7 @@ class Simulation {
 
                     let check = -1;
                     while (check === -1) {
-                        console.log("In loop");
+
                         // Pick and edge for the automated_verifier_2 such that it is either the same edge or intersects one of the nodes
                         let randomEdge = this.simulation_params.graph.E[Simulation.getRandomInt(0, this.simulation_params.graph.E.length-1)];
                         let collision = Simulation.checkEdgeCollision(user_request.edge, randomEdge);
@@ -693,7 +693,7 @@ class Simulation {
 
                             default:
 
-                                alert("Something went terribly wrong, check the console logs!");
+                                alert("Something went terribly wrong, check the console logs for errors!");
                                 console.log("Something went terribly wrong!");
                         }
                     }
@@ -701,7 +701,7 @@ class Simulation {
 
                 default:
 
-                    console.log("No valid test-case chosen");
+                    console.log("Please choose a valid test-case!");
                     alert("Please choose a valid test-case!");
             }
 
