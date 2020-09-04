@@ -526,7 +526,7 @@ function caseButtonClicked( CASE ) {
 
         default:
 
-            console.log("Pick a case!");
+            console.log("Please pick a case!");
             alert("Please pick a case!");
     }
 }
@@ -574,8 +574,8 @@ function testButtonClicked( TEST ) {
 
     // Check if and edge has been selected
     if (displaygraph.selected_cells.length === 0) {
-        console.log("Please select and edge!");
-        alert("Please select and edge!");
+        console.log("Please select an edge!");
+        alert("Please select an edge!");
     } else {
 
         // Get the user request information
