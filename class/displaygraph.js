@@ -222,23 +222,7 @@ class DisplayGraph {
         if (this.display_graph != null) {
             this.display_graph.cells.forEach(cell => {
                 if (cell.mouseIsInsideCell(sketch.mouseX, sketch.mouseY, sketch)) {
-                    // Add Cell to array when clicked
-                    // if(this.selected_cells.length > 0 && this.selected_cells.length < 2) {
-                    //     this.selected_cells.push(cell);
-                    //     this.selected_cells_id.push(cell.id);
-                    //     this.selected_cells.forEach(cell => {
-                    //        cell.cellSelected();
-                    //     });
-                    // } else {
-                    //     // Empty array if nothing is selected.
-                    //     this.selected_cells = [];
-                    //     this.selected_cells_id =[];
-                    //     this.selected_cells.push(cell);
-                    //     this.selected_cells_id.push(cell.id);
-                    //     this.selected_cells.forEach(cell => {
-                    //         cell.cellSelected();
-                    //     });
-                    // }
+
                     // Add Cell to selection array
                         if (this.selected_cells.length < 2) {
                             cell.flags.clicked = true;

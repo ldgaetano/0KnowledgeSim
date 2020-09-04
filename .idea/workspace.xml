@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="966db5e3-76f5-495b-953b-ee1959ba6455" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/class/verifier.js" beforeDir="false" afterPath="$PROJECT_DIR$/class/verifier.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/class/displaygraph.js" beforeDir="false" afterPath="$PROJECT_DIR$/class/displaygraph.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -15,61 +13,6 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="DockManager">
-    <window id="1">
-      <content type="file-editors">
-        <state>
-          <leaf>
-            <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/index.js">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="-6577">
-                    <caret line="43" column="21" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
-                    <folding>
-                      <element signature="e#2144#2403#0" />
-                      <element signature="e#2425#2943#0" />
-                      <element signature="e#19536#20406#0" />
-                      <element signature="e#20448#20922#0" />
-                      <element signature="e#20967#21490#0" />
-                      <element signature="e#21531#22006#0" />
-                      <element signature="e#22049#22596#0" />
-                      <element signature="e#22641#22906#0" />
-                      <element signature="e#22953#23429#0" />
-                      <element signature="e#23466#23975#0" />
-                      <element signature="e#24021#24610#0" />
-                      <element signature="e#24654#25246#0" />
-                      <element signature="e#25280#25586#0" />
-                      <element signature="e#25631#26340#0" />
-                      <element signature="e#32772#32804#0" />
-                      <element signature="e#46698#47403#0" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/class/ring.js">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="1995">
-                    <caret line="133" column="4" selection-start-line="133" selection-start-column="4" selection-end-line="133" selection-end-column="4" />
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/class/character.js">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="1594">
-                    <caret line="168" column="4" selection-start-line="168" selection-start-column="4" selection-end-line="168" selection-end-column="4" />
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-2024154851">
@@ -161,8 +104,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/class/displaygraph.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="274" column="29" lean-forward="true" selection-start-line="274" selection-start-column="29" selection-end-line="274" selection-end-column="29" />
+            <state relative-caret-position="359">
+              <caret line="224" lean-forward="true" selection-start-line="224" selection-end-line="224" />
             </state>
           </provider>
         </entry>
@@ -224,13 +167,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/class/cell.js" />
-        <option value="$PROJECT_DIR$/class/displaygraph.js" />
         <option value="$PROJECT_DIR$/class/simulation.js" />
         <option value="$PROJECT_DIR$/class/prover.js" />
         <option value="$PROJECT_DIR$/style.css" />
         <option value="$PROJECT_DIR$/class/character.js" />
         <option value="$PROJECT_DIR$/class/verifier.js" />
         <option value="$PROJECT_DIR$/index.js" />
+        <option value="$PROJECT_DIR$/class/displaygraph.js" />
       </list>
     </option>
   </component>
@@ -306,7 +249,7 @@
       <updated>1582482888581</updated>
       <workItem from="1582482890000" duration="142183000" />
       <workItem from="1589933127238" duration="116362000" />
-      <workItem from="1598638266914" duration="73534000" />
+      <workItem from="1598638266914" duration="74093000" />
     </task>
     <task id="LOCAL-00001" summary="Basic working version of project">
       <created>1582487159444</created>
@@ -318,7 +261,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="77909000" />
+    <option name="totallyTimeSpent" value="78468000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="-157" width="1920" height="1057" extended-state="6" />
@@ -476,8 +419,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/class/displaygraph.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="274" column="29" lean-forward="true" selection-start-line="274" selection-start-column="29" selection-end-line="274" selection-end-column="29" />
+        <state relative-caret-position="359">
+          <caret line="224" lean-forward="true" selection-start-line="224" selection-end-line="224" />
         </state>
       </provider>
     </entry>
