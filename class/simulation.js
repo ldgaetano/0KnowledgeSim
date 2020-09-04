@@ -464,7 +464,7 @@ class Simulation {
 
     /**
      * Run one iteration of the simulation. Assume input edges are sorted in ascending order.
-     * @param {String} test_case      The case the user has chosen: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
+     * @param {string} test_case      The case the user has chosen: "REQUEST" | "FORCED-EDGE-VERIFICATION" | "FORCED-WELL-DEFINITION"
      * @param {Object} [user_request] Object that includes edge and randomness values as parameters.
      */
     runSingleSimulation(test_case, user_request = {}) {
