@@ -1,5 +1,7 @@
 class Verifier extends Character {
 
+    static sim_stopped_toggle = false; // Toggle for simulation stop
+
     /**
      * Constructor for Character instance.
      * @param {string} name
@@ -56,6 +58,7 @@ class Verifier extends Character {
      */
     stopSimulation() {
         this.getSketch().noLoop();
+        Verifier.sim_stopped_toggle = true;
     }
 
     /**
